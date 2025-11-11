@@ -129,7 +129,6 @@ $stmt->close();
                              style="border-color: <?php echo $kategori['warna_hex']; ?>33;
                                     background-color: <?php echo $kategori['warna_hex']; ?>10;">
                             <div class="text-center peer-checked:scale-105 transition-transform">
-                                <div class="text-2xl mb-2"><?php echo $kategori['icon_emoji']; ?></div>
                                 <span class="text-sm font-medium" style="color: <?php echo $kategori['warna_hex']; ?>;">
                                     <?php echo htmlspecialchars($kategori['nama_kategori']); ?>
                                 </span>

@@ -53,7 +53,7 @@ try {
     $stmt_link = $conn->prepare(
         "INSERT INTO tbl_project_links (id_project, label, url, is_primary) VALUES (?, ?, ?, 1)"
     );
-    $label_utama = "Link Utama";
+    $label_utama = "Link Project";
     $stmt_link->bind_param("iss", $id_project, $label_utama, $link_utama);
     $stmt_link->execute();
     $stmt_link->close();
