@@ -3,7 +3,7 @@ $page_title = "Beranda";
 include '../config/db_connect.php';
 include '../includes/header_public.php';
 
-// Ambil karya terbaru (Featured)
+// Ambil karya terbaru (Featured) - TANPA icon_emoji
 $query_featured = "SELECT p.*, 
                    GROUP_CONCAT(DISTINCT c.nama_kategori ORDER BY c.nama_kategori SEPARATOR ', ') as kategori,
                    GROUP_CONCAT(DISTINCT c.warna_hex ORDER BY c.nama_kategori SEPARATOR ',') as warna,
@@ -132,15 +132,13 @@ $total_karya = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total 
                     <?php if ($karya['kategori']): 
                         $kategori_arr = explode(', ', $karya['kategori']);
                         $warna_arr = explode(',', $karya['warna']);
-                        $icons_arr = explode(',', $karya['icons']);
                     ?>
                     <div class="flex flex-wrap gap-1 mb-3">
                         <?php foreach($kategori_arr as $idx => $kat): 
-                            $warna = $warna_arr[$idx] ?? '#6B7280';
+                            $warna = isset($warna_arr[$idx]) ? trim($warna_arr[$idx]) : '#6B7280';
                         ?>
                         <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full" 
                               style="background-color: <?php echo $warna; ?>20; color: <?php echo $warna; ?>">
-                            <span class="mr-1"><?php echo $icon; ?></span>
                             <?php echo htmlspecialchars($kat); ?>
                         </span>
                         <?php endforeach; ?>

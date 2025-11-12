@@ -15,7 +15,7 @@ if ($id_project <= 0) {
     exit();
 }
 
-// Ambil data karya
+// Query tanpa icon_emoji
 $stmt = $conn->prepare("SELECT p.*, 
                         GROUP_CONCAT(DISTINCT c.nama_kategori ORDER BY c.nama_kategori SEPARATOR ', ') as kategori,
                         GROUP_CONCAT(DISTINCT c.warna_hex ORDER BY c.nama_kategori SEPARATOR ',') as warna,
@@ -197,15 +197,17 @@ include '../includes/header_public.php';
             <div class="bg-white rounded-xl shadow-md p-6 mb-6">
                 <h1 class="text-3xl font-bold text-gray-900 mb-4"><?php echo htmlspecialchars($karya['judul']); ?></h1>
                 
-                <!-- Categories -->
+                <!-- PERBAIKAN 2: Perbaiki parsing kategori dan icon -->
                 <?php if ($karya['kategori']): 
                     $kategori_arr = explode(', ', $karya['kategori']);
                     $warna_arr = explode(',', $karya['warna']);
-                    $icons_arr = explode(',', $karya['icons']);
+                    // PERBAIKI: Cek apakah icons ada dan tidak kosong
+                    $icons_arr = !empty($karya['icons']) ? explode(',', $karya['icons']) : [];
                 ?>
                 <div class="flex flex-wrap gap-2 mb-4">
                     <?php foreach($kategori_arr as $idx => $kat): 
-                        $warna = $warna_arr[$idx] ?? '#6B7280';
+                        $warna = isset($warna_arr[$idx]) ? $warna_arr[$idx] : '#6B7280';
+                        $icon = isset($icons_arr[$idx]) && !empty($icons_arr[$idx]) ? $icons_arr[$idx] : '📦';
                     ?>
                     <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full" 
                           style="background-color: <?php echo $warna; ?>20; color: <?php echo $warna; ?>">

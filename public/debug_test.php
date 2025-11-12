@@ -71,7 +71,7 @@ if ($result) {
 
 // 4. Test Query Single Project
 echo "<h2>4. Test Query Single Project</h2>";
-$test_id = isset($_GET['id']) ? intval($_GET['id']) : 1;
+$test_id = isset($_GET['id']) ? intval($_GET['id']) : 14;
 
 $query = "SELECT p.*, 
           GROUP_CONCAT(DISTINCT c.nama_kategori ORDER BY c.nama_kategori SEPARATOR ', ') as kategori,

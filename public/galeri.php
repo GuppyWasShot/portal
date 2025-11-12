@@ -12,7 +12,7 @@ $kategori_filter = isset($_GET['kategori']) ? $_GET['kategori'] : [];
 $query_kategori = "SELECT * FROM tbl_category ORDER BY nama_kategori ASC";
 $result_kategori = mysqli_query($conn, $query_kategori);
 
-// Build query untuk karya
+// Build query untuk karya - TANPA icon_emoji
 $where_conditions = ["p.status = 'Published'"];
 $params = [];
 $types = "";
@@ -126,7 +126,7 @@ $total_hasil = mysqli_num_rows($result_karya);
                 </select>
             </div>
             
-            <!-- Category Filter (kept for form preservation) -->
+            <!-- Category Filter -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Filter Kategori</label>
                 <button type="button" onclick="toggleKategoriFilter()" 
@@ -245,15 +245,13 @@ $total_hasil = mysqli_num_rows($result_karya);
                 <?php if ($karya['kategori']): 
                     $kategori_arr = explode(', ', $karya['kategori']);
                     $warna_arr = explode(',', $karya['warna']);
-                    $icons_arr = explode(',', $karya['icons']);
                 ?>
                 <div class="flex flex-wrap gap-1 mb-3">
                     <?php foreach($kategori_arr as $idx => $kat): 
-                        $warna = $warna_arr[$idx] ?? '#6B7280';
+                        $warna = isset($warna_arr[$idx]) ? trim($warna_arr[$idx]) : '#6B7280';
                     ?>
                     <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full" 
                           style="background-color: <?php echo $warna; ?>20; color: <?php echo $warna; ?>">
-                        <span class="mr-1"><?php echo $icon; ?></span>
                         <?php echo htmlspecialchars($kat); ?>
                     </span>
                     <?php endforeach; ?>

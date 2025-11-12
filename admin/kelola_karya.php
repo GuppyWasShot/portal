@@ -139,7 +139,7 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                             <td class="px-6 py-4 text-sm">
                                 <div class="flex items-center justify-center">
                                     <div class="relative inline-block text-left">
-                                        <button type="button" onclick="toggleMenu(<?php echo $karya['id_project']; ?>)" 
+                                        <button type="button" onclick="toggleMenu(event, <?php echo $karya['id_project']; ?>)" 
                                                 class="text-gray-400 hover:text-gray-600 focus:outline-none">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -188,20 +188,57 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
 </div>
 
 <script>
-function toggleMenu(id) {
-    document.querySelectorAll('[id^="menu-"]').forEach(menu => {
-        if(menu.id !== 'menu-' + id) menu.classList.add('hidden');
+function toggleMenu(event, id) {
+    // 1. Hentikan event agar tidak langsung ditangkap oleh document 'click'
+    event.stopPropagation();
+    
+    const menu = document.getElementById('menu-' + id);
+    const button = event.currentTarget;
+    const isHidden = menu.classList.contains('hidden');
+
+    // 2. Tutup semua menu lain terlebih dahulu
+    document.querySelectorAll('[id^="menu-"]').forEach(m => {
+        if (m.id !== 'menu-' + id) {
+            m.classList.add('hidden');
+        }
     });
-    document.getElementById('menu-' + id).classList.toggle('hidden');
+
+    // 3. Jika menu ini akan dibuka
+    if (isHidden) {
+        // 4. Pindahkan menu ke <body> agar lolos dari 'overflow'
+        document.body.appendChild(menu);
+        
+        // 5. Dapatkan posisi tombol yang diklik
+        const rect = button.getBoundingClientRect();
+
+        // 6. Atur style menu untuk diposisikan secara 'fixed'
+        // 'fixed' berarti posisinya relatif terhadap layar (viewport)
+        menu.style.position = 'fixed';
+        menu.style.top = `${rect.bottom + 4}px`; // 4px di bawah tombol
+        menu.style.left = 'auto'; // Hapus 'left' jika ada
+        menu.style.right = `${window.innerWidth - rect.right}px`; // Sejajarkan ke kanan tombol
+        
+        menu.classList.remove('hidden');
+    } else {
+        // Jika sudah terbuka, tutup saja
+        menu.classList.add('hidden');
+    }
 }
 
+// Listener ini berfungsi untuk menutup menu jika user klik di luar area menu
 document.addEventListener('click', function(e) {
+    // Cek apakah klik *tidak* di dalam menu DAN *tidak* pada tombol
     if (!e.target.closest('[id^="menu-"]') && !e.target.closest('button[onclick^="toggleMenu"]')) {
-        document.querySelectorAll('[id^="menu-"]').forEach(menu => menu.classList.add('hidden'));
+        document.querySelectorAll('[id^="menu-"]').forEach(menu => {
+            if (!menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+            }
+        });
     }
 });
 
 function filterTable() {
+    // ... (Fungsi filter Anda tetap sama, tidak perlu diubah) ...
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
     const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
     const table = document.getElementById('karyaTable');
