@@ -6,8 +6,19 @@ include '../includes/header_admin.php';
 
 // Ambil statistik
 $total_karya = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbl_project"))['total'];
-$total_kategori = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbl_category"))['total'];
+$total_published = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbl_project WHERE status = 'Published'"))['total'];
 $total_rating = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbl_rating"))['total'];
+
+// Karya dengan rating tertinggi
+$query_top_rated = "SELECT p.judul, AVG(r.skor) as avg_rating, COUNT(r.id_rating) as total_votes
+                    FROM tbl_project p
+                    LEFT JOIN tbl_rating r ON p.id_project = r.id_project
+                    WHERE p.status = 'Published'
+                    GROUP BY p.id_project
+                    HAVING total_votes > 0
+                    ORDER BY avg_rating DESC, total_votes DESC
+                    LIMIT 1";
+$top_rated = mysqli_fetch_assoc(mysqli_query($conn, $query_top_rated));
 
 // Ambil karya terbaru
 $query_karya = "SELECT p.*, 
@@ -30,24 +41,27 @@ $result_activity = mysqli_query($conn, $query_activity);
 
 <!-- Header -->
 <header class="bg-white shadow-sm">
-    <div class="px-8 py-6">
-        <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
-        <p class="text-gray-600 mt-1">Selamat datang kembali, <?php echo htmlspecialchars($_SESSION['admin_username']); ?>!</p>
+    <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Dashboard</h2>
+        <p class="text-gray-600 mt-1 text-sm sm:text-base">Selamat datang kembali, <?php echo htmlspecialchars($_SESSION['admin_username']); ?>!</p>
     </div>
 </header>
 
 <!-- Content -->
-<div class="p-8">
+<div class="p-4 sm:p-6 lg:p-8">
     
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         
+        <!-- Total Karya -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-gray-500 text-sm font-medium">Total Karya</p>
                     <p class="text-3xl font-bold text-gray-800 mt-2"><?php echo $total_karya; ?></p>
-                    <p class="text-xs text-gray-400 mt-1">Proyek terdaftar</p>
+                    <p class="text-xs text-gray-400 mt-1">
+                        <span class="text-green-600 font-semibold"><?php echo $total_published; ?></span> Published
+                    </p>
                 </div>
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,31 +71,49 @@ $result_activity = mysqli_query($conn, $query_activity);
             </div>
         </div>
         
+        <!-- Karya Terpopuler (Rating Tertinggi) -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
             <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm font-medium">Kategori</p>
-                    <p class="text-3xl font-bold text-gray-800 mt-2"><?php echo $total_kategori; ?></p>
-                    <p class="text-xs text-gray-400 mt-1">Kategori aktif</p>
+                <div class="flex-1 mr-2">
+                    <p class="text-gray-500 text-sm font-medium">Karya Rating Tertinggi</p>
+                    <?php if ($top_rated): ?>
+                    <p class="text-lg font-bold text-gray-800 mt-2 line-clamp-2">
+                        <?php echo htmlspecialchars($top_rated['judul']); ?>
+                    </p>
+                    <div class="flex items-center mt-1">
+                        <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span class="text-sm font-semibold text-gray-700 ml-1">
+                            <?php echo number_format($top_rated['avg_rating'], 1); ?>
+                        </span>
+                        <span class="text-xs text-gray-400 ml-1">
+                            (<?php echo $top_rated['total_votes']; ?> votes)
+                        </span>
+                    </div>
+                    <?php else: ?>
+                    <p class="text-sm text-gray-500 mt-2">Belum ada rating</p>
+                    <?php endif; ?>
                 </div>
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                 </div>
             </div>
         </div>
         
+        <!-- Total Rating -->
         <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-500 text-sm font-medium">Total Rating</p>
+                    <p class="text-gray-500 text-sm font-medium">Total Penilaian</p>
                     <p class="text-3xl font-bold text-gray-800 mt-2"><?php echo $total_rating; ?></p>
-                    <p class="text-xs text-gray-400 mt-1">Penilaian diterima</p>
+                    <p class="text-xs text-gray-400 mt-1">Rating diterima</p>
                 </div>
-                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                 </div>
             </div>
@@ -126,7 +158,7 @@ $result_activity = mysqli_query($conn, $query_activity);
                                 <td class="px-6 py-4 text-sm text-gray-600">
                                     <?php echo htmlspecialchars($row['kategori'] ?? '-'); ?>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-600">
+                                <td class="px-6 py-4 text-sm">
                                     <div class="flex items-center">
                                         <span class="text-yellow-500 mr-1">⭐</span>
                                         <?php echo $row['avg_rating'] ? number_format($row['avg_rating'], 1) : '-'; ?>
