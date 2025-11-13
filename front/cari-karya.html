@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <title>Cari Karya | PortalTPL</title>
+    <style>
+        /* Main Content */
+        .main-content {
+            padding: 120px 80px 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-header h1 {
+            font-size: 48px;
+            color: #2d1b69;
+            margin-bottom: 15px;
+        }
+
+        .page-header h1 .highlight {
+            color: #e91e8c;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Search Bar */
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto 60px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .search-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #e91e8c;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            cursor: pointer;
+        }
+
+        .filter-button {
+            padding: 15px 30px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .filter-button:hover {
+            border-color: #e91e8c;
+            color: #e91e8c;
+        }
+
+        /* Category Cards */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .category-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 2px solid transparent;
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+            border-color: #e91e8c;
+            box-shadow: 0 10px 30px rgba(233, 30, 140, 0.15);
+        }
+
+        .category-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #2d1b69;
+            border-radius: 15px;
+        }
+
+        .category-icon svg {
+            width: 45px;
+            height: 45px;
+            stroke: #2d1b69;
+        }
+
+        .category-card h3 {
+            color: #2d1b69;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            header, .main-content, footer {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .page-header h1 {
+                font-size: 32px;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <img src="/img/logo.svg" alt="Logo TPL">
+            <span>Portal<em>TPL</em></span>
+        </div>
+        <nav>
+            <a href="#beranda">Beranda</a>
+            <a href="#showcase">Showcase</a>
+            <a href="#faq">FAQ</a>
+            <a href="tentang.html">Tentang</a>
+            <a href="#kontak">Kontak</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Cari <span class="highlight">Karya</span></h1>
+            <p>Jelajahi inovasi-inovasi mahasiswa TPL</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    placeholder="Cari proyek..."
+                    id="searchInput"
+                >
+                <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                </svg>
+            </div>
+            <button class="filter-button" id="filterButton">
+                Filter
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Category Cards -->
+        <div class="category-grid">
+            <div class="category-card" onclick="filterByCategory('website')">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                </div>
+                <h3>Website</h3>
+            </div>
+
+            <div class="category-card" onclick="filterByCategory('mobile')">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="5" y="2" width="14" height="20" rx="2"/>
+                        <line x1="12" y1="18" x2="12.01" y2="18"/>
+                    </svg>
+                </div>
+                <h3>Aplikasi<br>Mobile</h3>
+            </div>
+
+            <div class="category-card" onclick="filterByCategory('paper')">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <line x1="10" y1="9" x2="8" y2="9"/>
+                    </svg>
+                </div>
+                <h3>Karya Tulis<br>Ilmiah</h3>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="kontak">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <div style="background: #412358; width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; font-weight: bold;">T</div>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Tautan</h3>
+                <p>IPB University<br>Sekolah Vokasi IPB University</p>
+            </div>
+            <div class="footer-section">
+                <h3>Alamat & Kontak</h3>
+                <p>Jl. Kumbang No.14, Kelurahan Babakan,<br>Kecamatan Bogor Tengah, Kota Bogor, Jawa<br>Barat 16128</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div>© 2025 Portal TPL - All Rights Reserved</div>
+            <div class="social-icons">
+                <a href="#">📷</a>
+                <a href="#">🔗</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const searchTerm = this.value;
+                if (searchTerm.trim()) {
+                    alert('Mencari: ' + searchTerm);
+                    // Here you would implement actual search functionality
+                }
+            }
+        });
+
+        // Filter button
+        const filterButton = document.getElementById('filterButton');
+        filterButton.addEventListener('click', function() {
+            alert('Filter menu akan muncul di sini');
+            // Here you would implement filter dropdown
+        });
+
+        // Category filter
+        function filterByCategory(category) {
+            console.log('Filter by category:', category);
+            alert('Menampilkan karya kategori: ' + category);
+            // Here you would implement category filtering
+        }
+
+        // Search icon click
+        document.querySelector('.search-icon').addEventListener('click', function() {
+            const searchTerm = searchInput.value;
+            if (searchTerm.trim()) {
+                alert('Mencari: ' + searchTerm);
+            }
+        });
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const cards = document.querySelectorAll('.category-card');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 100);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease-out';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
