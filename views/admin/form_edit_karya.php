@@ -120,7 +120,7 @@ $stmt->close();
                 <label class="block text-sm font-medium text-gray-700 mb-3">
                     Kategori <span class="text-red-500">*</span>
                 </label>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <?php while($kategori = mysqli_fetch_assoc($result_kategori)): ?>
                     <label class="relative cursor-pointer">
                         <input type="checkbox" name="kategori[]" value="<?php echo $kategori['id_kategori']; ?>"

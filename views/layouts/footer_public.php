@@ -18,7 +18,6 @@
                         <a href="galeri.php">Galeri</a><br>
                         <a href="faq.php">FAQ</a><br>
                         <a href="tentang.php">Tentang</a><br>
-                        <a href="kontak.php">Kontak</a>
                     </p>
                 </div>
     

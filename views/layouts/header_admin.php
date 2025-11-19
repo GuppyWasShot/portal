@@ -82,6 +82,13 @@ $page_title = isset($page_title) ? $page_title : 'Dashboard';
                     </svg>
                     <span>Kelola Karya</span>
                 </a>
+
+                <a href="kelola_kategori.php" class="flex items-center px-4 py-3 <?php echo $current_page == 'kelola_kategori' ? 'bg-indigo-800' : 'hover:bg-indigo-800'; ?> rounded-lg transition">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <span>Kelola Kategori</span>
+                </a>
                 
                 <div class="pt-4 mt-4 border-t border-indigo-800">
                     <a href="../../views/public/index.php" target="_blank" class="flex items-center px-4 py-3 hover:bg-indigo-800 rounded-lg transition text-indigo-300">
