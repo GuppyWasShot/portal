@@ -5,6 +5,11 @@ $user = 'root';
 $pass = '';
 $db_name = 'db_portal_tpl';
 
+// $host = 'sql109.infinityfree.com';
+// $user = 'if0_40385611';
+// $pass = 'portaltpl123';
+// $db_name = 'if0_40385611_portal_tpl';
+
 // 1. Buat koneksi
 $conn = mysqli_connect($host, $user, $pass, $db_name);
 
