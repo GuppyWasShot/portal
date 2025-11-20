@@ -158,6 +158,16 @@ body.page-matkul tfoot td:nth-child(2) {
     text-align: center;  
 }
 
+body.page-matkul .matkul-tag {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #f1f3f5;
+    color: #555;
+    font-size: 12px;
+}
+
 @media (max-width: 992px) {
     body.page-matkul .container-content {
         padding: 30px 40px;

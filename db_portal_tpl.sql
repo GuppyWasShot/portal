@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Nov 19, 2025 at 11:04 AM
+-- Generation Time: Nov 20, 2025 at 08:21 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,23 @@ SET time_zone = "+00:00";
 --
 -- Database: `db_portal_tpl`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_about_sections`
+--
+
+CREATE TABLE `tbl_about_sections` (
+  `id_section` int(11) NOT NULL,
+  `judul` varchar(150) NOT NULL,
+  `slug` varchar(100) NOT NULL,
+  `konten` text NOT NULL,
+  `urutan` int(11) DEFAULT 0,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -74,6 +91,63 @@ CREATE TABLE `tbl_category` (
   `nama_kategori` varchar(50) NOT NULL,
   `warna_hex` varchar(7) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_dosen`
+--
+
+CREATE TABLE `tbl_dosen` (
+  `id_dosen` int(11) NOT NULL,
+  `nama` varchar(150) NOT NULL,
+  `gelar` varchar(150) DEFAULT NULL,
+  `jabatan` varchar(150) DEFAULT NULL,
+  `email` varchar(150) DEFAULT NULL,
+  `foto_url` varchar(255) DEFAULT NULL,
+  `deskripsi` text DEFAULT NULL,
+  `urutan` int(11) DEFAULT 0,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_faq`
+--
+
+CREATE TABLE `tbl_faq` (
+  `id_faq` int(11) NOT NULL,
+  `pertanyaan` varchar(255) NOT NULL,
+  `jawaban` text NOT NULL,
+  `kategori` varchar(100) DEFAULT NULL,
+  `urutan` int(11) DEFAULT 0,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_matkul`
+--
+
+CREATE TABLE `tbl_matkul` (
+  `id_matkul` int(11) NOT NULL,
+  `kode` varchar(50) NOT NULL,
+  `nama` varchar(150) NOT NULL,
+  `sks` tinyint(4) DEFAULT 0,
+  `semester` tinyint(4) DEFAULT 0,
+  `kategori` varchar(100) DEFAULT NULL,
+  `deskripsi` text DEFAULT NULL,
+  `urutan` int(11) DEFAULT 0,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -156,6 +230,13 @@ CREATE TABLE `tbl_rating` (
 --
 
 --
+-- Indexes for table `tbl_about_sections`
+--
+ALTER TABLE `tbl_about_sections`
+  ADD PRIMARY KEY (`id_section`),
+  ADD UNIQUE KEY `slug` (`slug`);
+
+--
 -- Indexes for table `tbl_activity_logs`
 --
 ALTER TABLE `tbl_activity_logs`
@@ -180,8 +261,25 @@ ALTER TABLE `tbl_admin_logs`
 -- Indexes for table `tbl_category`
 --
 ALTER TABLE `tbl_category`
-  ADD PRIMARY KEY (`id_kategori`),
-  ADD UNIQUE KEY `slug` (`slug`);
+  ADD PRIMARY KEY (`id_kategori`);
+
+--
+-- Indexes for table `tbl_dosen`
+--
+ALTER TABLE `tbl_dosen`
+  ADD PRIMARY KEY (`id_dosen`);
+
+--
+-- Indexes for table `tbl_faq`
+--
+ALTER TABLE `tbl_faq`
+  ADD PRIMARY KEY (`id_faq`);
+
+--
+-- Indexes for table `tbl_matkul`
+--
+ALTER TABLE `tbl_matkul`
+  ADD PRIMARY KEY (`id_matkul`);
 
 --
 -- Indexes for table `tbl_project`
@@ -223,6 +321,12 @@ ALTER TABLE `tbl_rating`
 --
 
 --
+-- AUTO_INCREMENT for table `tbl_about_sections`
+--
+ALTER TABLE `tbl_about_sections`
+  MODIFY `id_section` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `tbl_activity_logs`
 --
 ALTER TABLE `tbl_activity_logs`
@@ -245,6 +349,24 @@ ALTER TABLE `tbl_admin_logs`
 --
 ALTER TABLE `tbl_category`
   MODIFY `id_kategori` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `tbl_dosen`
+--
+ALTER TABLE `tbl_dosen`
+  MODIFY `id_dosen` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `tbl_faq`
+--
+ALTER TABLE `tbl_faq`
+  MODIFY `id_faq` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `tbl_matkul`
+--
+ALTER TABLE `tbl_matkul`
+  MODIFY `id_matkul` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tbl_project`

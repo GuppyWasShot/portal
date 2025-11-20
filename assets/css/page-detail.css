@@ -3,7 +3,7 @@ body.page-detail .main-content {
     padding: 190px 40px 100px;
     max-width: 1400px;
     margin: 0 auto;
-    background: #f8f9fa;
+    background: transparent;
 }
 
 body.page-detail .content-grid {
@@ -15,7 +15,7 @@ body.page-detail .content-grid {
 
 /* ===== Bagian: Kolom Kiri ===== */
 body.page-detail .left-column {
-    background: #f5f5f6;
+    background: #ffffff;
     padding: 30px;
     border-radius: 20px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.12);
@@ -111,7 +111,7 @@ body.page-detail .right-column {
 
 body.page-detail .info-card,
 body.page-detail .rating-section {
-    background: #f5f5f6;
+    background: #ffffff;
     padding: 30px;
     border-radius: 20px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.12);

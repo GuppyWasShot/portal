@@ -7,7 +7,7 @@
 // ===== Bagian: Autoload Class =====
 require_once __DIR__ . '/../../app/autoload.php';
 
-$page_title = "Galeri Karya";
+$page_title = "Daftar Karya";
 
 // ===== Bagian: Inisialisasi Kelas =====
 $karyaModel = new Karya();
@@ -49,7 +49,7 @@ include __DIR__ . '/../layouts/header_public.php';
 <!-- ===== Bagian: Hero Galeri ===== -->
 <section class="gallery-hero">
     <div class="gallery-hero-content">
-        <h1>Cari <span class="highlight">Karya</span></h1>
+        <h1>Daftar <span class="highlight">Karya</span></h1>
         <p>Jelajahi inovasi dan kreativitas mahasiswa Teknologi Rekayasa Perangkat Lunak</p>
     </div>
 </section>
@@ -146,9 +146,15 @@ include __DIR__ . '/../layouts/header_public.php';
             </div>
             <div class="gallery-card-content">
                 <?php if (!empty($kategori_arr)): ?>
-                <span class="gallery-card-badge" style="<?php echo !empty($warna_arr[0]) ? 'background-color: ' . trim($warna_arr[0]) . '20; color: ' . trim($warna_arr[0]) . ';' : ''; ?>">
-                    <?php echo htmlspecialchars($kategori_arr[0]); ?>
-                </span>
+                <div class="gallery-card-badges" style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <?php foreach($kategori_arr as $idx => $kat): 
+                        $warna = isset($warna_arr[$idx]) ? trim($warna_arr[$idx]) : '#6B7280';
+                    ?>
+                    <span class="gallery-card-badge" style="background-color: <?php echo $warna; ?>20; color: <?php echo $warna; ?>; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                        <?php echo htmlspecialchars($kat); ?>
+                    </span>
+                    <?php endforeach; ?>
+                </div>
                 <?php endif; ?>
                 <h3 class="gallery-card-title"><?php echo htmlspecialchars($karya['judul']); ?></h3>
                 <p class="gallery-card-description"><?php echo htmlspecialchars(substr($karya['deskripsi'], 0, 100)); ?>...</p>

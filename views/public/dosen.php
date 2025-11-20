@@ -1,11 +1,19 @@
 <?php
-/**
- * Dosen TPL - Halaman Daftar Dosen
- */
-
 $page_title = "Dosen TPL";
 $body_class = 'page-dosen';
 $additional_stylesheets = ['assets/css/page-dosen.css'];
+
+require_once __DIR__ . '/../../app/autoload.php';
+$db = Database::getInstance()->getConnection();
+$dosen_list = [];
+$result = $db->query("SELECT * FROM tbl_dosen WHERE status = 'active' ORDER BY COALESCE(NULLIF(urutan, 0), 9999) ASC, nama ASC");
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $dosen_list[] = $row;
+    }
+}
+$default_photo = 'assets/img/fd.png';
+
 include __DIR__ . '/../layouts/header_public.php';
 ?>
 
@@ -20,159 +28,43 @@ include __DIR__ . '/../layouts/header_public.php';
     <!-- Dosen Cards Section -->
     <div class="container-dosen">
         <div class="unique-dosen-grid">
-            <div class="dosen-card-unique">
-                <div class="photo-base">
-                    <img src="../../assets/img/fd.png" alt="Foto Dosen 1" class="dosen-photo">
+            <?php if (empty($dosen_list)): ?>
+                <div class="dosen-empty-state">
+                    <p>Data dosen belum tersedia.</p>
                 </div>
-                <div class="info-content-unique">
-                    <div class="name-research-group">
-                    <a href="https://sinta.kemdiktisaintek.go.id/authors/profile/6697925" target="_blank" class="sinta-link">
-                        <h3 class="dosen-name">Medhanita Dewi Renanti, S.Kom., M.Kom.</h3>
-                    </a>
-                    <p class="research-interest">
-                        <strong>Research Interest</strong><br>
-                        Artificial Intelligence for software engineering.
-                    </p>
+            <?php else: ?>
+                <?php foreach ($dosen_list as $dosen): ?>
+                <div class="dosen-card-unique">
+                    <div class="photo-base">
+                        <img src="../../<?php echo htmlspecialchars(!empty($dosen['foto_url']) ? $dosen['foto_url'] : $default_photo); ?>" alt="Foto <?php echo htmlspecialchars($dosen['nama']); ?>" class="dosen-photo">
                     </div>
-                    <div class="contact-footer">
-                        <a href="mailto:Medhanita@apps.ac.id" class="dosen-email">
-                            Medhanita@apps.ac.id
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="dosen-card-unique">
-                <div class="photo-base">
-                    <img src="../../assets/img/fd3.png" alt="Foto Dosen 2" class="dosen-photo">
-                </div>
-                <div class="info-content-unique">
-                    <div class="name-research-group">
-                    <a href="https://sinta.kemdiktisaintek.go.id/authors/profile/6765111" target="_blank" class="sinta-link">
-                        <h3 class="dosen-name">Aditya Wicaksono, S.Komp., M.Kom.</h3>
-                    </a>
-                    <p class="research-interest">
-                        <strong>Research Interest</strong><br>
-                        Pengembangan Aplikasi Multiplatform (Programming)
-                    </p>
-                    </div>
-                    <div class="contact-footer">
-                        <a href="mailto:adityacaksono@apps.ipb.ac.id" class="dosen-email">
-                            adityacaksono@apps.ipb.ac.id
-                        </a>
+                    <div class="info-content-unique">
+                        <div class="name-research-group">
+                            <h3 class="dosen-name"><?php echo htmlspecialchars($dosen['nama']); ?></h3>
+                            <?php if (!empty($dosen['gelar'])): ?>
+                                <p class="dosen-title"><?php echo htmlspecialchars($dosen['gelar']); ?></p>
+                            <?php endif; ?>
+                            <?php if (!empty($dosen['jabatan'])): ?>
+                                <p class="dosen-position"><?php echo htmlspecialchars($dosen['jabatan']); ?></p>
+                            <?php endif; ?>
+                            <?php if (!empty($dosen['deskripsi'])): ?>
+                            <p class="research-interest">
+                                <strong>Research Interest</strong><br>
+                                <?php echo nl2br(htmlspecialchars($dosen['deskripsi'])); ?>
+                            </p>
+                            <?php endif; ?>
+                        </div>
+                        <?php if (!empty($dosen['email'])): ?>
+                        <div class="contact-footer">
+                            <a href="mailto:<?php echo htmlspecialchars($dosen['email']); ?>" class="dosen-email">
+                                <?php echo htmlspecialchars($dosen['email']); ?>
+                            </a>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
-            </div>
-
-            <div class="dosen-card-unique">
-                <div class="photo-base">
-                    <img src="../../assets/img/fd2.png" alt="Foto Dosen 3" class="dosen-photo">
-                </div>
-                <div class="info-content-unique">
-                    <div class="name-research-group">
-                    <a href="https://sinta.kemdiktisaintek.go.id/authors/profile/6691754" target="_blank" class="sinta-link">
-                        <h3 class="dosen-name">Sofiyanti Indriasari, S.Kom., M.Kom.</h3>
-                    </a>
-                    <p class="research-interest">
-                        <strong>Research Interest</strong><br>
-                        Software Engineering
-                    </p>
-                    </div>
-                    <div class="contact-footer">
-                        <a href="mailto:sofiyanti@apps.ac.id" class="dosen-email">
-                            sofiyanti@apps.ac.id
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dosen-card-unique">
-                <div class="photo-base">
-                    <img src="../../assets/img/fd5.png" alt="Foto Dosen 4" class="dosen-photo">
-                </div>
-                <div class="info-content-unique">
-                    <div class="name-research-group">
-                    <a href="https://sinta.kemdiktisaintek.go.id/authors/profile/6711406" target="_blank" class="sinta-link">
-                        <h3 class="dosen-name">Dra. Irma Rasita Gloria Barus, M.A.</h3>
-                    </a>
-                    <p class="research-interest">
-                        <strong>Research Interest</strong><br>
-                        kepakaran 1
-                    </p>
-                    </div>
-                    <div class="contact-footer">
-                        <a href="mailto:irmabarus@apps.ac.id" class="dosen-email">
-                            irmabarus@apps.ac.id
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="dosen-card-unique">
-                <div class="photo-base">
-                    <img src="../../assets/img/fd4.png" alt="Foto Dosen 5" class="dosen-photo">
-                </div>
-                <div class="info-content-unique">
-                    <div class="name-research-group">
-                    <a href="https://sinta.kemdiktisaintek.go.id/authors/profile/6765104" target="_blank" class="sinta-link">
-                        <h3 class="dosen-name">Nur Aziezah, S.Si., M.Si.</h3>
-                    </a>
-                    <p class="research-interest">
-                        <strong>Research Interest</strong><br>
-                        Data Analyst for software engineering
-                    </p>
-                    </div>
-                    <div class="contact-footer">
-                        <a href="mailto:nurazizeah@apps.ac.id" class="dosen-email">
-                            nurazizeah@apps.ac.id
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dosen-card-unique">
-                <div class="photo-base">
-                    <img src="../../assets/img/fd6.png" alt="Foto Dosen 6" class="dosen-photo">
-                </div>
-                <div class="info-content-unique">
-                    <div class="name-research-group">
-                    <a href="https://sinta.kemdiktisaintek.go.id/authors/profile/6765092" target="_blank" class="sinta-link">
-                        <h3 class="dosen-name">Amata Fami, M.Ds.</h3>
-                    </a>
-                    <p class="research-interest">
-                        <strong>Research Interest</strong><br>
-                        UI/UX Design
-                    </p>
-                    </div>
-                    <div class="contact-footer">
-                        <a href="mailto:amatafami@apps.ac.id" class="dosen-email">
-                            amatafami@apps.ac.id
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dosen-card-unique">
-                <div class="photo-base">
-                    <img src="../../assets/img/fd7.png" alt="Foto Dosen 7" class="dosen-photo">
-                </div>
-                <div class="info-content-unique">
-                    <div class="name-research-group">
-                    <a href="https://sinta.kemdiktisaintek.go.id/authors/profile/6908814" target="_blank" class="sinta-link">
-                        <h3 class="dosen-name">Muhammad Nasir, S.T., M.Kom.</h3>
-                    </a>
-                    <p class="research-interest">
-                        <strong>Research Interest</strong><br>
-                        Project Management
-                    </p>
-                    </div>
-                    <div class="contact-footer">
-                        <a href="mailto:m_nasir@apps.ac.id" class="dosen-email">
-                            m_nasir@apps.ac.id
-                        </a>
-                    </div>
-                </div>
-            </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 

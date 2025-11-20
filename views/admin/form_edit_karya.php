@@ -126,12 +126,13 @@ $stmt->close();
                         <input type="checkbox" name="kategori[]" value="<?php echo $kategori['id_kategori']; ?>"
                                <?php echo in_array($kategori['id_kategori'], $selected_categories) ? 'checked' : ''; ?>
                                class="peer sr-only">
-                        <div class="flex items-center justify-center p-4 border-2 rounded-lg transition-all
-                                    peer-checked:border-2 peer-checked:shadow-md hover:shadow-sm"
+                        <div class="flex items-center justify-center p-4 border-2 rounded-lg transition-all filter grayscale opacity-50
+                                    peer-checked:border-2 peer-checked:shadow-md peer-checked:filter-none peer-checked:opacity-100 hover:shadow-sm"
                              style="border-color: <?php echo $kategori['warna_hex']; ?>33;
                                     background-color: <?php echo $kategori['warna_hex']; ?>10;">
                             <div class="text-center peer-checked:scale-105 transition-transform">
-                                <span class="text-sm font-medium" style="color: <?php echo $kategori['warna_hex']; ?>;">
+                                <span class="text-sm font-medium transition-colors"
+                                      style="color: <?php echo $kategori['warna_hex']; ?>;">
                                     <?php echo htmlspecialchars($kategori['nama_kategori']); ?>
                                 </span>
                             </div>

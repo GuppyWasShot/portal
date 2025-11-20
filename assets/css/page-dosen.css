@@ -85,6 +85,18 @@ body.page-dosen .dosen-name {
     transition: color 0.3s;
 }
 
+body.page-dosen .dosen-title,
+body.page-dosen .dosen-position {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+body.page-dosen .dosen-position {
+    margin-top: 6px;
+    font-weight: 500;
+}
+
 body.page-dosen .sinta-link {
     text-decoration: none; 
 }
@@ -111,6 +123,15 @@ body.page-dosen .research-interest {
 body.page-dosen .research-interest strong {
     color: #E30081; 
     font-weight: 700;
+}
+
+body.page-dosen .dosen-empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    border: 2px dashed #e5e7eb;
+    border-radius: 20px;
+    color: #6b7280;
 }
 
 body.page-dosen .contact-footer {

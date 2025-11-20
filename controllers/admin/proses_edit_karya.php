@@ -129,6 +129,14 @@ try {
                     $stmt_snapshot->bind_param("isssis", $id_project, $label_snapshot, $original_name, $db_path, $file_size, $file_type);
                     $stmt_snapshot->execute();
                     $stmt_snapshot->close();
+                    
+                    // Update snapshot_url di tbl_project (hanya yang pertama)
+                    if ($idx === 0) {
+                        $stmt_update = $conn->prepare("UPDATE tbl_project SET snapshot_url = ? WHERE id_project = ?");
+                        $stmt_update->bind_param("si", $db_path, $id_project);
+                        $stmt_update->execute();
+                        $stmt_update->close();
+                    }
                 } else {
                     error_log("Gagal upload snapshot: " . $original_name . " - Error: " . $_FILES['snapshots']['error'][$idx]);
                 }
@@ -214,7 +222,38 @@ try {
         $stmt_file->close();
     }
     
-    // 6. Log aktivitas
+    // 6. Pastikan snapshot_url terisi jika masih NULL
+    // Cek apakah snapshot_url masih NULL atau kosong
+    $stmt_check = $conn->prepare("SELECT snapshot_url FROM tbl_project WHERE id_project = ?");
+    $stmt_check->bind_param("i", $id_project);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
+    $project_data = $result_check->fetch_assoc();
+    $stmt_check->close();
+    
+    // Jika snapshot_url NULL atau kosong, ambil snapshot pertama dari tbl_project_files
+    if (empty($project_data['snapshot_url'])) {
+        $stmt_snapshot = $conn->prepare(
+            "SELECT file_path FROM tbl_project_files 
+             WHERE id_project = ? AND file_path LIKE 'uploads/snapshots/%' 
+             ORDER BY id_file ASC LIMIT 1"
+        );
+        $stmt_snapshot->bind_param("i", $id_project);
+        $stmt_snapshot->execute();
+        $result_snapshot = $stmt_snapshot->get_result();
+        $snapshot_data = $result_snapshot->fetch_assoc();
+        $stmt_snapshot->close();
+        
+        // Update snapshot_url jika ada snapshot
+        if ($snapshot_data && !empty($snapshot_data['file_path'])) {
+            $stmt_update_snapshot = $conn->prepare("UPDATE tbl_project SET snapshot_url = ? WHERE id_project = ?");
+            $stmt_update_snapshot->bind_param("si", $snapshot_data['file_path'], $id_project);
+            $stmt_update_snapshot->execute();
+            $stmt_update_snapshot->close();
+        }
+    }
+    
+    // 7. Log aktivitas
     logActivity(
         $conn, 
         $_SESSION['admin_id'], 

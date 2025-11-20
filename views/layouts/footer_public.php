@@ -15,7 +15,7 @@
                 <div class="footer-section">
                     <h3>Quick Links</h3>
                     <p><a href="index.php">Beranda</a><br>
-                        <a href="galeri.php">Galeri</a><br>
+                        <a href="galeri.php">Daftar Karya</a><br>
                         <a href="faq.php">FAQ</a><br>
                         <a href="tentang.php">Tentang</a><br>
                     </p>

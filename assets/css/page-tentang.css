@@ -119,6 +119,32 @@ body.page-tentang .content li {
     font-size: 15px;
 }
 
+body.page-tentang .about-section {
+    background: #f9f9f9;
+    padding: 30px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(45, 27, 105, 0.08);
+}
+
+body.page-tentang .about-section h3 {
+    margin-top: 0;
+}
+
+body.page-tentang .about-body {
+    color: #555;
+    line-height: 1.8;
+    white-space: pre-line;
+}
+
+body.page-tentang .empty-about {
+    text-align: center;
+    padding: 60px;
+    background: #f9f9f9;
+    border-radius: 20px;
+    color: #666;
+}
+
 body.page-tentang .profile-intro {
     background: #f9f9f9;
     padding: 30px;

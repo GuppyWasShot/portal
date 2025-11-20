@@ -89,6 +89,36 @@ $page_title = isset($page_title) ? $page_title : 'Dashboard';
                     </svg>
                     <span>Kelola Kategori</span>
                 </a>
+
+                <div class="pt-4 mt-4 border-t border-indigo-800">
+                    <p class="px-4 text-xs font-semibold text-indigo-300 uppercase tracking-wide mb-2">Konten Publik</p>
+                    <a href="kelola_faq.php" class="flex items-center px-4 py-3 <?php echo $current_page == 'kelola_faq' ? 'bg-indigo-800' : 'hover:bg-indigo-800'; ?> rounded-lg transition">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h4l2 2h4a2 2 0 012 2v12a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Kelola FAQ</span>
+                    </a>
+                    <a href="kelola_tentang.php" class="flex items-center px-4 py-3 <?php echo $current_page == 'kelola_tentang' ? 'bg-indigo-800' : 'hover:bg-indigo-800'; ?> rounded-lg transition">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2-1.343-2-3-2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16v12H4z" />
+                        </svg>
+                        <span>Konten Tentang</span>
+                    </a>
+                    <a href="kelola_dosen.php" class="flex items-center px-4 py-3 <?php echo $current_page == 'kelola_dosen' ? 'bg-indigo-800' : 'hover:bg-indigo-800'; ?> rounded-lg transition">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A4 4 0 017 17h10a4 4 0 011.879.804L21 19.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14.5l2.121-1.696z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11a3 3 0 100-6 3 3 0 000 6z" />
+                        </svg>
+                        <span>Kelola Dosen</span>
+                    </a>
+                    <a href="kelola_matkul.php" class="flex items-center px-4 py-3 <?php echo $current_page == 'kelola_matkul' ? 'bg-indigo-800' : 'hover:bg-indigo-800'; ?> rounded-lg transition">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 11-4 0 2 2 0 014 0zm-6 8v6m0-6a2 2 0 100 4 2 2 0 000-4zm12-2v8m0-8a2 2 0 100 4 2 2 0 000-4z" />
+                        </svg>
+                        <span>Kelola Mata Kuliah</span>
+                    </a>
+                </div>
                 
                 <div class="pt-4 mt-4 border-t border-indigo-800">
                     <a href="../../views/public/index.php" target="_blank" class="flex items-center px-4 py-3 hover:bg-indigo-800 rounded-lg transition text-indigo-300">

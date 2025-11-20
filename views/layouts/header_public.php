@@ -62,7 +62,7 @@ $stylesheets_to_load = array_merge(
         </div>
         <nav id="nav-menu" class="nav-menu" aria-label="Navigasi utama">
             <a href="index.php">Beranda</a>
-            <a href="galeri.php">Galeri</a>
+            <a href="galeri.php">Daftar Karya</a>
             <a href="faq.php">FAQ</a>
             <a href="tentang.php">Tentang</a>
         </nav>
