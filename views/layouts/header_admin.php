@@ -121,7 +121,7 @@ $page_title = isset($page_title) ? $page_title : 'Dashboard';
                 </div>
                 
                 <div class="pt-4 mt-4 border-t border-indigo-800">
-                    <a href="../../views/public/index.php" target="_blank" class="flex items-center px-4 py-3 hover:bg-indigo-800 rounded-lg transition text-indigo-300">
+                    <a href="../../views/public/index.php" target="_blank" rel="noopener noreferrer" class="flex items-center px-4 py-3 hover:bg-indigo-800 rounded-lg transition text-indigo-300">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>

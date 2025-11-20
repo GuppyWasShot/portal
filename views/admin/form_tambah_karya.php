@@ -11,6 +11,33 @@ $query_kategori = "SELECT * FROM tbl_category ORDER BY nama_kategori ASC";
 $result_kategori = mysqli_query($conn, $query_kategori);
 ?>
 
+<style>
+.category-card {
+    background-color: #f3f4f6;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: all .2s ease;
+    color: #4b5563;
+    text-align: center;
+}
+.category-card .category-name {
+    color: #4b5563;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color .2s ease;
+}
+.peer:checked + .category-card {
+    background-color: var(--cat-bg, #eef2ff);
+    border-color: var(--cat-border, #6366f1);
+    color: var(--cat-text, #4338ca);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+}
+.peer:checked + .category-card .category-name {
+    color: var(--cat-text, #4338ca);
+}
+</style>
+
 <header class="bg-white shadow-sm">
     <div class="px-8 py-6">
         <div class="flex items-center text-sm text-gray-500 mb-2">
@@ -65,7 +92,8 @@ $result_kategori = mysqli_query($conn, $query_kategori);
                 </label>
                 <input type="text" id="pembuat" name="pembuat" required
                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                       placeholder="Nama atau tim pembuat (pisahkan dengan koma)">
+                       placeholder='Nama atau tim pembuat (pisahkan dengan ";")'>
+                <p class="text-xs text-gray-500 mt-1">Jika lebih dari satu nama, pisahkan menggunakan tanda titik koma (;). Contoh: "Ani; Budi; Charlie".</p>
             </div>
             
             <!-- Deskripsi -->
@@ -84,20 +112,20 @@ $result_kategori = mysqli_query($conn, $query_kategori);
                     Kategori <span class="text-red-500">*</span>
                 </label>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    <?php while($kategori = mysqli_fetch_assoc($result_kategori)): ?>
+                    <?php while($kategori = mysqli_fetch_assoc($result_kategori)): 
+                        $color = $kategori['warna_hex'];
+                        $bgColor = $color . '1a';
+                    ?>
                     <label class="relative cursor-pointer">
                         <input type="checkbox" name="kategori[]" value="<?php echo $kategori['id_kategori']; ?>"
                                class="peer sr-only" >
-                        <div class="flex items-center justify-center p-4 border-2 rounded-lg transition-all filter grayscale opacity-50
-                                    peer-checked:border-2 peer-checked:shadow-md peer-checked:filter-none peer-checked:opacity-100 hover:shadow-sm"
-                             style="border-color: <?php echo $kategori['warna_hex']; ?>33;
-                                    background-color: <?php echo $kategori['warna_hex']; ?>10;">
-                            <div class="text-center peer-checked:scale-105 transition-transform">
-                                <span class="text-sm font-medium transition-colors"
-                                      style="color: <?php echo $kategori['warna_hex']; ?>;">
-                                    <?php echo htmlspecialchars($kategori['nama_kategori']); ?>
-                                </span>
-                            </div>
+                        <div class="category-card"
+                             style="--cat-bg: <?php echo $bgColor; ?>;
+                                    --cat-border: <?php echo $color; ?>;
+                                    --cat-text: <?php echo $color; ?>;">
+                            <span class="category-name">
+                                <?php echo htmlspecialchars($kategori['nama_kategori']); ?>
+                            </span>
                         </div>
                     </label>
                     <?php endwhile; ?>

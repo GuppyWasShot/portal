@@ -40,9 +40,8 @@ include __DIR__ . '/../layouts/header_public.php';
                     </div>
                     <div class="info-content-unique">
                         <div class="name-research-group">
-                            <h3 class="dosen-name"><?php echo htmlspecialchars($dosen['nama']); ?></h3>
                             <?php if (!empty($dosen['gelar'])): ?>
-                                <p class="dosen-title"><?php echo htmlspecialchars($dosen['gelar']); ?></p>
+                                <h3 class="dosen-name"><?php echo htmlspecialchars($dosen['nama']) . (empty($dosen['gelar']) ? '' : ' ' . htmlspecialchars($dosen['gelar'])); ?></h3>
                             <?php endif; ?>
                             <?php if (!empty($dosen['jabatan'])): ?>
                                 <p class="dosen-position"><?php echo htmlspecialchars($dosen['jabatan']); ?></p>

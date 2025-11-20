@@ -18,6 +18,10 @@ if (!$conn) {
     die("Koneksi ke database gagal: " . mysqli_connect_error());
 }
 
+// Set timezone PHP dan MySQL ke Asia/Jakarta
+date_default_timezone_set('Asia/Jakarta');
+mysqli_query($conn, "SET time_zone = '+07:00'");
+
 // 3. Setel charset
 mysqli_set_charset($conn, "utf8mb4");
 

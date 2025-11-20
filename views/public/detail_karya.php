@@ -107,6 +107,11 @@ if ($karya['kategori']) {
     $warna_arr = explode(',', $karya['warna']);
 }
 
+$pembuat_list = [];
+if (!empty($karya['pembuat'])) {
+    $pembuat_list = array_filter(array_map('trim', explode(';', $karya['pembuat'])));
+}
+
 // Set page title
 $page_title = $karya['judul'];
 $body_class = 'page-detail';
@@ -240,7 +245,15 @@ include __DIR__ . '/../layouts/header_public.php';
                         </svg>
                         <div class="info-content">
                             <h4>Pembuat</h4>
+                            <?php if (!empty($pembuat_list)): ?>
+                            <ul class="creator-list">
+                                <?php foreach ($pembuat_list as $pembuat): ?>
+                                <li><?php echo htmlspecialchars($pembuat); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                            <?php else: ?>
                             <p><?php echo htmlspecialchars($karya['pembuat']); ?></p>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

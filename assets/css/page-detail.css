@@ -161,6 +161,17 @@ body.page-detail .info-content ul {
     padding: 0;
 }
 
+body.page-detail .creator-list {
+    margin: 0.35rem 0 0;
+    padding-left: 1.25rem;
+    color: #4b5563;
+}
+
+body.page-detail .creator-list li {
+    list-style: disc;
+    margin-bottom: 0.35rem;
+}
+
 /* ===== Bagian: Penilaian ===== */
 body.page-detail .stars {
     display: flex;
