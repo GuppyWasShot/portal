@@ -137,14 +137,12 @@ footer {
 }
 
 .footer-logo {
-    width: 120px;
-    height: 120px;
-    background: #ffffff;
-    border-radius: 30px;
+    width: 50px;
+    height: 50px;
+    background: inherit;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
 }
 
 .footer-section h3 {

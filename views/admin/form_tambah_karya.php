@@ -124,8 +124,8 @@ $result_kategori = mysqli_query($conn, $query_kategori);
                                     --cat-border: <?php echo $color; ?>;
                                     --cat-text: <?php echo $color; ?>;">
                             <span class="category-name">
-                                <?php echo htmlspecialchars($kategori['nama_kategori']); ?>
-                            </span>
+                                    <?php echo htmlspecialchars($kategori['nama_kategori']); ?>
+                                </span>
                         </div>
                     </label>
                     <?php endwhile; ?>
