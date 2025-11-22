@@ -64,13 +64,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $stmt->close();
     
-    logActivity(
-        $conn, 
-        $_SESSION['admin_id'], 
-        $_SESSION['admin_username'], 
-        "Mengubah status karya '" . $karya['judul'] . "' menjadi $new_status", 
-        $id_project
-    );
+    // Fix: Support both old and new session variable names
+    $admin_id_log = $_SESSION['admin_id'] ?? $_SESSION['id_admin'] ?? null;
+    $admin_username_log = $_SESSION['admin_username'] ?? $_SESSION['username'] ?? 'Unknown';
+    
+    if ($admin_id_log) {
+        logActivity(
+            $conn, 
+            $admin_id_log, 
+            $admin_username_log, 
+            "Mengubah status karya '" . $karya['judul'] . "' menjadi $new_status", 
+            $id_project
+        );
+    }
+
     
     // Pastikan tidak ada output sebelum header
     if (ob_get_level()) {

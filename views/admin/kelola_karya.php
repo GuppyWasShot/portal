@@ -23,7 +23,31 @@ if ($sort_order !== 'ASC' && $sort_order !== 'DESC') {
     $sort_order = 'DESC';
 }
 
-// Ambil semua karya untuk tabel dengan sorting
+// Pagination settings
+$per_page = 15; // Items per page
+$current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+
+// Build WHERE conditions
+$where_conditions = [];
+$params = [];
+$types = "";
+
+// No additional filters for now, but can be added later
+$where_clause = "1=1"; // Always true, placeholder
+
+// Count total untuk pagination
+$count_query = "SELECT COUNT(DISTINCT p.id_project) as total
+                FROM tbl_project p
+                LEFT JOIN tbl_project_category pc ON p.id_project = pc.id_project
+                LEFT JOIN tbl_category c ON pc.id_kategori = c.id_kategori
+                LEFT JOIN tbl_rating r ON p.id_project = r.id_project
+                WHERE $where_clause";
+$count_result = mysqli_query($conn, $count_query);
+$total_karya = $count_result->fetch_assoc()['total'];
+$total_pages = ceil($total_karya / $per_page);
+
+// Ambil karya dengan pagination
+$offset = ($current_page - 1) * $per_page;
 $query_all_karya = "SELECT p.*, 
                     GROUP_CONCAT(DISTINCT c.nama_kategori ORDER BY c.nama_kategori SEPARATOR ', ') as kategori,
                     GROUP_CONCAT(DISTINCT c.warna_hex ORDER BY c.nama_kategori SEPARATOR ',') as warna,
@@ -33,8 +57,10 @@ $query_all_karya = "SELECT p.*,
                     LEFT JOIN tbl_project_category pc ON p.id_project = pc.id_project
                     LEFT JOIN tbl_category c ON pc.id_kategori = c.id_kategori
                     LEFT JOIN tbl_rating r ON p.id_project = r.id_project
+                    WHERE $where_clause
                     GROUP BY p.id_project
-                    ORDER BY $sort_by $sort_order";
+                    ORDER BY $sort_by $sort_order
+                    LIMIT $per_page OFFSET $offset";
 $result_all_karya = mysqli_query($conn, $query_all_karya);
 ?>
 
@@ -97,7 +123,7 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                <a href="?sort=judul&order=<?php echo ($sort_by == 'judul' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>" 
+                                <a href="?sort=judul&order=<?php echo ($sort_by == 'judul' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>&page=<?php echo $current_page; ?>" 
                                    class="flex items-center hover:text-indigo-600 transition">
                                     Judul
                                     <?php if($sort_by == 'judul'): ?>
@@ -106,7 +132,7 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                                 </a>
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                <a href="?sort=pembuat&order=<?php echo ($sort_by == 'pembuat' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>" 
+                                <a href="?sort=pembuat&order=<?php echo ($sort_by == 'pembuat' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>&page=<?php echo $current_page; ?>" 
                                    class="flex items-center hover:text-indigo-600 transition">
                                     Pembuat
                                     <?php if($sort_by == 'pembuat'): ?>
@@ -116,7 +142,7 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                <a href="?sort=avg_rating&order=<?php echo ($sort_by == 'avg_rating' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>" 
+                                <a href="?sort=avg_rating&order=<?php echo ($sort_by == 'avg_rating' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>&page=<?php echo $current_page; ?>" 
                                    class="flex items-center hover:text-indigo-600 transition">
                                     Rating
                                     <?php if($sort_by == 'avg_rating'): ?>
@@ -125,7 +151,7 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                                 </a>
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                <a href="?sort=status&order=<?php echo ($sort_by == 'status' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>" 
+                                <a href="?sort=status&order=<?php echo ($sort_by == 'status' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>&page=<?php echo $current_page; ?>" 
                                    class="flex items-center hover:text-indigo-600 transition">
                                     Status
                                     <?php if($sort_by == 'status'): ?>
@@ -232,6 +258,87 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                         <?php endwhile; ?>
                     </tbody>
                 </table>
+            </div>
+            
+            <!-- Pagination Info -->
+            <div class="mt-4 flex items-center justify-between">
+                <div class="text-sm text-gray-600">
+                    Menampilkan <strong><?php echo (($current_page - 1) * $per_page) + 1; ?></strong> - 
+                    <strong><?php echo min($current_page * $per_page, $total_karya); ?></strong> dari 
+                    <strong><?php echo $total_karya; ?></strong> karya
+                </div>
+                
+                <?php if ($total_pages > 1): ?>
+                <div class="flex gap-2">
+                    <?php
+                    // Build query params
+                    $query_params = $_GET;
+                    unset($query_params['page']);
+                    ?>
+                    
+                    <!-- Previous Button -->
+                    <?php if ($current_page > 1): ?>
+                    <a href="?<?php echo http_build_query(array_merge($query_params, ['page' => $current_page - 1])); ?>" 
+                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        ← Prev
+                    </a>
+                    <?php else: ?>
+                    <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+                        ← Prev
+                    </span>
+                    <?php endif; ?>
+                    
+                    <!-- Page Numbers -->
+                    <?php
+                    $start_page = max(1, $current_page - 2);
+                    $end_page = min($total_pages, $current_page + 2);
+                    
+                    if ($start_page > 1): ?>
+                        <a href="?<?php echo http_build_query(array_merge($query_params, ['page' => 1])); ?>" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            1
+                        </a>
+                        <?php if ($start_page > 2): ?>
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400">...</span>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                    
+                    <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                        <?php if ($i == $current_page): ?>
+                        <span class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-indigo-600 rounded-lg">
+                            <?php echo $i; ?>
+                        </span>
+                        <?php else: ?>
+                        <a href="?<?php echo http_build_query(array_merge($query_params, ['page' => $i])); ?>" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <?php echo $i; ?>
+                        </a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+                    
+                    <?php if ($end_page < $total_pages): ?>
+                        <?php if ($end_page < $total_pages - 1): ?>
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400">...</span>
+                        <?php endif; ?>
+                        <a href="?<?php echo http_build_query(array_merge($query_params, ['page' => $total_pages])); ?>" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <?php echo $total_pages; ?>
+                        </a>
+                    <?php endif; ?>
+                    
+                    <!-- Next Button -->
+                    <?php if ($current_page < $total_pages): ?>
+                    <a href="?<?php echo http_build_query(array_merge($query_params, ['page' => $current_page + 1])); ?>" 
+                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        Next →
+                    </a>
+                    <?php else: ?>
+                    <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+                        Next →
+                    </span>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
             </div>
             
         </div>

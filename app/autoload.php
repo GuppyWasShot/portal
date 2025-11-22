@@ -1,10 +1,11 @@
 <?php
 /**
- * Simple Autoloader untuk Class OOP
- * 
- * Usage:
- * require_once __DIR__ . '/../app/autoload.php';
+ * Autoload file untuk memuat semua class yang dibutuhkan
+ * File ini di-include di setiap halaman yang membutuhkan akses ke class
  */
+
+// Set timezone ke Jakarta (WIB) untuk semua operasi tanggal/waktu
+date_default_timezone_set('Asia/Jakarta');
 
 spl_autoload_register(function ($class) {
     // Base directory untuk models

@@ -254,13 +254,20 @@ try {
     }
     
     // 7. Log aktivitas
-    logActivity(
-        $conn, 
-        $_SESSION['admin_id'], 
-        $_SESSION['admin_username'], 
-        "Mengupdate karya: $judul (Status: $status)", 
-        $id_project
-    );
+    // Fix: Support both old and new session variable names
+    $admin_id_log = $_SESSION['admin_id'] ?? $_SESSION['id_admin'] ?? null;
+    $admin_username_log = $_SESSION['admin_username'] ?? $_SESSION['username'] ?? 'Unknown';
+    
+    if ($admin_id_log) {
+        logActivity(
+            $conn, 
+            $admin_id_log, 
+            $admin_username_log, 
+            "Mengupdate karya: $judul (Status: $status)", 
+            $id_project
+        );
+    }
+
     
     mysqli_commit($conn);
     

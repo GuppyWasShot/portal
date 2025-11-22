@@ -74,14 +74,21 @@ include __DIR__ . '/../layouts/header_public.php';
                         <path d="m21 21-4.35-4.35"/>
                     </svg>
                 </div>
-                <button type="button" class="filter-button" onclick="scrollToCategories()">
-                    Filter
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 9l6 6 6-6"/>
-                    </svg>
-                </button>
+                <div class="sort-wrapper">
+                    <label for="sortSelect" class="sort-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18M7 12h10m-7 6h4"/>
+                        </svg>
+                        Sort:
+                    </label>
+                    <select name="sort" id="sortSelect" class="sort-select" onchange="document.getElementById('filterForm').submit();">
+                        <option value="terbaru" <?php echo $sort === 'terbaru' ? 'selected' : ''; ?>>Terbaru</option>
+                        <option value="terlama" <?php echo $sort === 'terlama' ? 'selected' : ''; ?>>Terlama</option>
+                        <option value="alfabet" <?php echo $sort === 'alfabet' ? 'selected' : ''; ?>>Alfabet (A-Z)</option>
+                        <option value="rating" <?php echo $sort === 'rating' ? 'selected' : ''; ?>>Rating Tertinggi</option>
+                    </select>
+                </div>
             </div>
-            <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort); ?>">
 
             <!-- ===== Bagian: Filter Kategori ===== -->
             <div class="category-filter" id="categoryFilter">
@@ -244,6 +251,7 @@ include __DIR__ . '/../layouts/header_public.php';
                 cb.checked = false;
         });
         document.getElementById('pageInput').value = '1';
+        saveScrollPosition();
         document.getElementById('filterForm').submit();
     }
 
@@ -254,14 +262,45 @@ include __DIR__ . '/../layouts/header_public.php';
         }
     }
 
+    // Save scroll position before form submit
+    function saveScrollPosition() {
+        sessionStorage.setItem('galeri_scroll', window.scrollY);
+    }
+
+    // Restore scroll position after page load
+    window.addEventListener('load', function() {
+        const savedScroll = sessionStorage.getItem('galeri_scroll');
+        if (savedScroll !== null) {
+            window.scrollTo(0, parseInt(savedScroll));
+            sessionStorage.removeItem('galeri_scroll');
+        }
+    });
+
+    // Save scroll position when form is submitted
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function() {
+            saveScrollPosition();
+        });
+    }
+
+    // Save scroll position when category/sort is changed
+    document.querySelectorAll('input[name="kategori[]"], select[name="sort"]').forEach(function(elem) {
+        elem.addEventListener('change', function() {
+            saveScrollPosition();
+        });
+    });
+
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             document.getElementById('pageInput').value = '1';
+            saveScrollPosition();
         }
     });
     }
+
 </script>
 
 <?php include __DIR__ . '/../layouts/footer_public.php'; ?>

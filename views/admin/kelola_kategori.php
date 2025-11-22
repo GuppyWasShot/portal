@@ -148,7 +148,7 @@ include __DIR__ . '/../layouts/header_admin.php';
                                             Edit
                                         </button>
                                         <button type="button"
-                                                onclick="confirmDelete(<?php echo $kategori['id_kategori']; ?>)"
+                                                onclick="confirmDeleteKategori(<?php echo $kategori['id_kategori']; ?>)"
                                                 class="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition">
                                             Hapus
                                         </button>
@@ -218,7 +218,7 @@ function closeEditModal() {
     editModal.classList.remove('flex');
 }
 
-function confirmDelete(id) {
+function confirmDeleteKategori(id) {
     if (confirm('Hapus kategori ini? Kategori akan dilepas dari semua karya yang terkait.')) {
         window.location.href = '../../controllers/admin/hapus_kategori.php?id=' + id;
     }

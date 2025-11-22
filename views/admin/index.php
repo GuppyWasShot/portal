@@ -14,6 +14,14 @@ $db = Database::getInstance()->getConnection();
 $conn = $db; // Untuk backward compatibility
 include __DIR__ . '/../layouts/header_admin.php';
 
+// Helper function untuk format waktu WIB
+function convertToWIB($datetime_string) {
+    // Data di database sudah dalam WIB (karena MySQL timezone sudah di-set +07:00)
+    // Jadi kita hanya perlu format saja, TIDAK perlu tambah 7 jam
+    $timestamp = strtotime($datetime_string);
+    return date('d M Y, H:i', $timestamp);
+}
+
 // Ambil statistik
 $total_karya = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbl_project"))['total'];
 $total_published = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbl_project WHERE status = 'Published'"))['total'];
@@ -216,10 +224,7 @@ $result_activity = mysqli_query($conn, $query_activity);
                                     <?php echo htmlspecialchars($activity['action']); ?>
                                 </p>
                                 <p class="text-xs text-gray-400 mt-1">
-                                    <?php 
-                                    $time = strtotime($activity['log_time']);
-                                    echo date('d M Y, H:i', $time);
-                                    ?>
+                                    <?php echo convertToWIB($activity['log_time']); ?>
                                 </p>
                             </div>
                         </div>

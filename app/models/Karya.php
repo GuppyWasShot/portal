@@ -244,10 +244,17 @@ class Karya {
             $types .= "sss";
         }
         
-        // Filter kategori
+        // Filter kategori - project must have ALL selected categories (AND logic)
         if (!empty($kategori_filter) && is_array($kategori_filter)) {
-            $placeholders = implode(',', array_fill(0, count($kategori_filter), '?'));
-            $where_conditions[] = "pc.id_kategori IN ($placeholders)";
+            $count_needed = count($kategori_filter);
+            $placeholders = implode(',', array_fill(0, $count_needed, '?'));
+            // Check that project has ALL selected categories by counting matches
+            $where_conditions[] = "(
+                SELECT COUNT(DISTINCT pc_filter.id_kategori) 
+                FROM tbl_project_category pc_filter 
+                WHERE pc_filter.id_project = p.id_project 
+                AND pc_filter.id_kategori IN ($placeholders)
+            ) = $count_needed";
             foreach ($kategori_filter as $kat_id) {
                 $params[] = intval($kat_id);
                 $types .= "i";
@@ -276,7 +283,6 @@ class Karya {
         // Query untuk count total
         $count_query = "SELECT COUNT(DISTINCT p.id_project) as total
                 FROM tbl_project p
-                LEFT JOIN tbl_project_category pc ON p.id_project = pc.id_project
                 WHERE $where_clause";
         
         if (!empty($params)) {

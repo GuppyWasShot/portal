@@ -88,24 +88,55 @@ body.page-galeri .search-icon {
     pointer-events: none;
 }
 
-body.page-galeri .filter-button {
+body.page-galeri .sort-wrapper {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 14px 26px;
+    gap: 12px;
+    padding: 10px 20px;
     border-radius: 25px;
     border: 2px solid #e0e0e0;
     background: #fff;
-    font-weight: 600;
-    color: #2d1b69;
-    cursor: pointer;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-body.page-galeri .filter-button:hover {
+body.page-galeri .sort-wrapper:hover {
     border-color: #e91e8c;
     box-shadow: 0 10px 25px rgba(45, 27, 105, 0.1);
 }
+
+body.page-galeri .sort-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #2d1b69;
+    font-size: 14px;
+    margin: 0;
+    cursor: pointer;
+}
+
+body.page-galeri .sort-select {
+    border: none;
+    background: transparent;
+    font-weight: 600;
+    color: #e91e8c;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    padding: 0;
+    min-width: 140px;
+}
+
+body.page-galeri .sort-select:focus {
+    outline: none;
+}
+
+body.page-galeri .sort-select option {
+    background: #fff;
+    color: #2d1b69;
+    padding: 8px;
+}
+
 
 body.page-galeri .sr-only {
     position: absolute;

@@ -34,6 +34,9 @@ class Database {
         // Set charset
         $this->conn->set_charset("utf8mb4");
         
+        // Set timezone MySQL ke Asia/Jakarta (GMT+7)
+        $this->conn->query("SET time_zone = '+07:00'");
+        
         // Enable error reporting untuk development
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
     }

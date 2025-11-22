@@ -58,13 +58,19 @@ try {
     $stmt->execute();
     $stmt->close();
     
-    // Log aktivitas
-    logActivity(
-        $conn, 
-        $_SESSION['admin_id'], 
-        $_SESSION['admin_username'], 
-        "Menghapus karya: " . $karya['judul']
-    );
+    // Fix: Support both old and new session variable names
+    $admin_id_log = $_SESSION['admin_id'] ?? $_SESSION['id_admin'] ?? null;
+    $admin_username_log = $_SESSION['admin_username'] ?? $_SESSION['username'] ?? 'Unknown';
+    
+    if ($admin_id_log) {
+        logActivity(
+            $conn, 
+            $admin_id_log, 
+            $admin_username_log, 
+            "Menghapus karya: " . $karya['judul']
+        );
+    }
+
     
     mysqli_commit($conn);
     

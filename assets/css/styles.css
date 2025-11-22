@@ -71,7 +71,7 @@ body {
     margin: 0;
     font-family: var(--font-family-primary);
     line-height: 1.6;
-    background: var(--color-neutral-200);
+    background: #ffffff;
     color: var(--color-neutral-700);
     -webkit-font-smoothing: antialiased;
 }
@@ -545,9 +545,7 @@ main {
 }
 
 @media (max-width: 768px) {
-    body {
-        background: var(--color-neutral-100);
-    }
+    /* Mobile responsive - background already white */
 
     .section-shell {
         width: calc(100% - 28px);

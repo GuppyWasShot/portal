@@ -15,8 +15,8 @@ $additional_stylesheets = ['assets/css/page-index.css'];
 $karyaModel = new Karya();
 $db = Database::getInstance()->getConnection();
 
-// Ambil karya terbaru (Featured) - 6 karya
-$featured_karya = $karyaModel->getAllKarya(['sort' => 'terbaru']);
+// Ambil karya dengan rating tertinggi (Featured) - 6 karya
+$featured_karya = $karyaModel->getAllKarya(['sort' => 'rating']);
 $featured_karya = array_slice($featured_karya, 0, 6);
 
 // Ambil semua kategori
@@ -114,13 +114,28 @@ include __DIR__ . '/../layouts/header_public.php';
                 ?>
                 <div class="project-card">
                     <a href="detail_karya.php?id=<?php echo $karya_item['id_project']; ?>" style="text-decoration: none; display: block;">
-                        <div class="project-image" style="<?php echo !empty($karya_item['snapshot_url']) ? 'background-image: url(../../' . htmlspecialchars($karya_item['snapshot_url']) . '); cursor: pointer;' : ''; ?>"></div>
+                        <div class="project-image" style="<?php echo !empty($karya_item['snapshot_url']) ? 'background-image: url(../../' . htmlspecialchars($karya_item['snapshot_url']) . '); cursor: pointer;' : ''; ?>">
+                            <?php if ($karya_item['avg_rating']): ?>
+                            <div style="position: absolute; top: 10px; right: 10px; background: rgba(255, 255, 255, 0.95); padding: 5px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                <svg viewBox="0 0 20 20" style="width: 16px; height: 16px; fill: #ffd700;">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                                <span style="color: #2d1b69;"><?php echo number_format($karya_item['avg_rating'], 1); ?></span>
+                            </div>
+                            <?php endif; ?>
+                        </div>
                     </a>
                     <div class="project-content">
                         <?php if (!empty($kategori_arr)): ?>
-                        <span class="project-badge" style="<?php echo !empty($warna_arr[0]) ? 'background-color: ' . trim($warna_arr[0]) . '20; color: ' . trim($warna_arr[0]) . ';' : ''; ?>">
-                            <?php echo htmlspecialchars($kategori_arr[0]); ?>
-                        </span>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;">
+                            <?php foreach($kategori_arr as $idx => $kat): 
+                                $warna = isset($warna_arr[$idx]) ? trim($warna_arr[$idx]) : '#6B7280';
+                            ?>
+                            <span class="project-badge" style="background-color: <?php echo $warna; ?>20; color: <?php echo $warna; ?>; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                <?php echo htmlspecialchars($kat); ?>
+                            </span>
+                            <?php endforeach; ?>
+                        </div>
                         <?php endif; ?>
                         <h3 class="project-title"><?php echo htmlspecialchars($karya_item['judul']); ?></h3>
                         <p class="project-description"><?php echo htmlspecialchars(substr($karya_item['deskripsi'], 0, 100)); ?>...</p>

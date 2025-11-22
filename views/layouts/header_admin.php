@@ -121,6 +121,16 @@ $page_title = isset($page_title) ? $page_title : 'Dashboard';
                 </div>
                 
                 <div class="pt-4 mt-4 border-t border-indigo-800">
+                    <p class="px-4 text-xs font-semibold text-indigo-300 uppercase tracking-wide mb-2">Sistem</p>
+                    <a href="log_admin.php" class="flex items-center px-4 py-3 <?php echo $current_page == 'log_admin' ? 'bg-indigo-800' : 'hover:bg-indigo-800'; ?> rounded-lg transition">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Log Admin</span>
+                    </a>
+                </div>
+                
+                <div class="pt-4 mt-4 border-t border-indigo-800">
                     <a href="../../views/public/index.php" target="_blank" rel="noopener noreferrer" class="flex items-center px-4 py-3 hover:bg-indigo-800 rounded-lg transition text-indigo-300">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
