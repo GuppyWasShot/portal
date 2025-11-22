@@ -17,15 +17,15 @@ body.page-detail .content-grid {
 body.page-detail .left-column {
     background: #ffffff;
     padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-small);
 }
 
 body.page-detail .project-image {
     width: 100%;
     height: 400px;
     background: linear-gradient(135deg, #a8b5f0 0%, #c8b5f0 100%);
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
     overflow: hidden;
     margin-bottom: 30px;
 }
@@ -54,7 +54,7 @@ body.page-detail .tag {
     background: #e8d9f5;
     color: #2d1b69;
     padding: 8px 18px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     font-size: 13px;
     font-weight: 600;
 }
@@ -82,7 +82,7 @@ body.page-detail .action-buttons {
 
 body.page-detail .btn {
     padding: 12px 30px;
-    border-radius: 25px;
+    border-radius: var(--radius-full);
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
@@ -113,8 +113,8 @@ body.page-detail .info-card,
 body.page-detail .rating-section {
     background: #ffffff;
     padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-small);
 }
 
 body.page-detail .info-card h3,
@@ -221,7 +221,7 @@ body.page-detail .btn-submit {
     color: white;
     padding: 12px 40px;
     border: none;
-    border-radius: 25px;
+    border-radius: var(--radius-full);
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
@@ -336,7 +336,7 @@ body.page-detail .btn-cancel-rating {
     padding: 10px 20px;
     font-size: 14px;
     border: none;
-    border-radius: 25px;
+    border-radius: var(--radius-full);
     font-weight: 600;
     color: white;
     cursor: pointer;
@@ -359,7 +359,7 @@ body.page-detail .gallery-grid {
 
 body.page-detail .gallery-item {
     aspect-ratio: 16/9;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s;
@@ -385,9 +385,11 @@ body.page-detail .main-image-container {
     position: relative;
     margin-bottom: 24px;
     width: 100%;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio (9/16 * 100 = 56.25%) */
-    background-color: #000000; /* Padding hitam */
-    border-radius: 15px;
+    padding-bottom: 56.25%;
+    /* 16:9 aspect ratio (9/16 * 100 = 56.25%) */
+    background-color: #000000;
+    /* Padding hitam */
+    border-radius: var(--radius-lg);
     overflow: hidden;
 }
 
@@ -397,7 +399,8 @@ body.page-detail .main-image-container img {
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: contain; /* Gambar tidak terpotong, padding hitam muncul di sisi jika perlu */
+    object-fit: contain;
+    /* Gambar tidak terpotong, padding hitam muncul di sisi jika perlu */
     transition: opacity 0.3s;
 }
 

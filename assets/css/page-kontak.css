@@ -1,7 +1,7 @@
 /* ===== Bagian: Halaman Kontak ===== */
 body.page-kontak .contact-hero {
     background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%);
-    padding: 150px 80px 90px;
+    padding: var(--hero-padding-top) var(--hero-padding-x) var(--hero-padding-bottom);
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -17,9 +17,10 @@ body.page-kontak .contact-hero-content {
 }
 
 body.page-kontak .contact-hero h1 {
-    font-size: 48px;
+    font-size: clamp(28px, 5vw, 48px);
     color: #2d1b69;
     margin-bottom: 20px;
+    font-weight: 700;
 }
 
 body.page-kontak .contact-hero h1 .highlight {
@@ -29,7 +30,7 @@ body.page-kontak .contact-hero h1 .highlight {
 body.page-kontak .contact-hero p {
     color: #5a4c76;
     margin-bottom: 30px;
-    font-size: 16px;
+    font-size: clamp(15px, 2vw, 16px);
 }
 
 body.page-kontak .main-content {
@@ -55,8 +56,8 @@ body.page-kontak .contact-cards {
 body.page-kontak .contact-card {
     background: white;
     padding: 35px;
-    border-radius: 20px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-small);
     display: flex;
     align-items: flex-start;
     gap: 25px;
@@ -71,7 +72,7 @@ body.page-kontak .contact-card:hover {
 body.page-kontak .contact-icon {
     width: 60px;
     height: 60px;
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -112,9 +113,11 @@ body.page-kontak .contact-info a:hover {
 body.page-kontak .contact-form {
     background: white;
     padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-small);
 }
+
+/* Form alerts use utilities: .form-alert, .form-alert-success, .form-alert-error, .form-alert-info */
 
 body.page-kontak .form-alert {
     padding: 16px 20px;
@@ -172,7 +175,7 @@ body.page-kontak .form-group textarea {
     width: 100%;
     padding: 15px 20px;
     border: 2px solid #e0e0e0;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     font-size: 15px;
     font-family: inherit;
     transition: all 0.3s;
@@ -195,7 +198,7 @@ body.page-kontak .btn-submit {
     color: #E30081;
     padding: 16px 40px;
     border: 2px solid #E30081;
-    border-radius: 24px;
+    border-radius: var(--radius-2xl);
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -213,8 +216,8 @@ body.page-kontak .btn-submit:hover {
 body.page-kontak .map-section {
     background: white;
     padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-small);
     margin-bottom: 60px;
 }
 
@@ -230,7 +233,7 @@ body.page-kontak .map-container {
     width: 100%;
     height: 450px;
     background: linear-gradient(135deg, #e8d9f5 0%, #d4c5eb 100%);
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -244,7 +247,7 @@ body.page-kontak .map-container iframe {
     width: 100%;
     height: 100%;
     border: 0;
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
 }
 
 @media (max-width: 992px) {
@@ -261,16 +264,12 @@ body.page-kontak .map-container iframe {
     body.page-kontak .main-content {
         padding: 40px 20px;
     }
-    
+
     body.page-kontak .content-grid {
         grid-template-columns: 1fr;
         gap: 30px;
     }
-    
-    body.page-kontak .contact-hero {
-        padding: 140px 20px 60px;
-    }
-    
+
     body.page-kontak .contact-hero h1 {
         font-size: 32px;
         line-height: 1.3;
@@ -279,7 +278,7 @@ body.page-kontak .map-container iframe {
     body.page-kontak .contact-hero p {
         font-size: 15px;
     }
-    
+
     body.page-kontak .contact-card {
         flex-direction: column;
         text-align: center;
@@ -318,10 +317,6 @@ body.page-kontak .map-container iframe {
 }
 
 @media (max-width: 576px) {
-    body.page-kontak .contact-hero {
-        padding: 130px 16px 50px;
-    }
-
     body.page-kontak .contact-hero h1 {
         font-size: 28px;
     }
@@ -350,4 +345,3 @@ body.page-kontak .map-container iframe {
         height: 300px;
     }
 }
-

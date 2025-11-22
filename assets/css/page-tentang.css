@@ -1,7 +1,7 @@
 /* ===== Bagian: Halaman Tentang ===== */
 body.page-tentang .hero {
     background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%);
-    padding: 160px 80px 120px;
+    padding: var(--hero-padding-top) var(--hero-padding-x) var(--hero-padding-bottom);
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -17,9 +17,10 @@ body.page-tentang .hero-content {
 }
 
 body.page-tentang .hero h1 {
-    font-size: 48px;
+    font-size: clamp(28px, 5vw, 48px);
     color: #2d1b69;
     margin-bottom: 20px;
+    font-weight: 700;
 }
 
 body.page-tentang .hero h1 .highlight {
@@ -29,7 +30,7 @@ body.page-tentang .hero h1 .highlight {
 body.page-tentang .hero p {
     color: #5a4c76;
     margin-bottom: 30px;
-    font-size: 16px;
+    font-size: clamp(15px, 2vw, 16px);
     line-height: 1.6;
 }
 
@@ -122,9 +123,9 @@ body.page-tentang .content li {
 body.page-tentang .about-section {
     background: #f9f9f9;
     padding: 30px;
-    border-radius: 16px;
+    border-radius: var(--radius-md);
     margin-bottom: 30px;
-    box-shadow: 0 10px 30px rgba(45, 27, 105, 0.08);
+    box-shadow: var(--shadow-hover);
 }
 
 body.page-tentang .about-section h3 {
@@ -141,7 +142,7 @@ body.page-tentang .empty-about {
     text-align: center;
     padding: 60px;
     background: #f9f9f9;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     color: #666;
 }
 
@@ -177,15 +178,12 @@ body.page-tentang .info-box p {
 }
 
 @media (max-width: 768px) {
+
     body.page-tentang header,
     body.page-tentang .content,
     body.page-tentang footer {
         padding-left: 20px;
         padding-right: 20px;
-    }
-
-    body.page-tentang .hero {
-        padding: 130px 20px 80px;
     }
 
     body.page-tentang .hero h1 {
@@ -239,10 +237,6 @@ body.page-tentang .info-box p {
 }
 
 @media (max-width: 576px) {
-    body.page-tentang .hero {
-        padding: 120px 16px 60px;
-    }
-
     body.page-tentang .hero h1 {
         font-size: 28px;
     }

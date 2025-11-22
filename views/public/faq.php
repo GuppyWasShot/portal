@@ -42,7 +42,7 @@ include __DIR__ . '/../layouts/header_public.php';
     <?php else: ?>
         <?php foreach ($faq_groups as $group => $items): ?>
         <div class="faq-group">
-            <h3><?php echo htmlspecialchars($group); ?></h3>
+            <!-- <h3><?php echo htmlspecialchars($group); ?></h3> -->
             <div class="faq-container">
                 <?php foreach ($items as $faq): ?>
                 <div class="faq-card">

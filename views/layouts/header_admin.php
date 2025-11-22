@@ -128,6 +128,16 @@ $page_title = isset($page_title) ? $page_title : 'Dashboard';
                         <span>Lihat Situs Publik</span>
                     </a>
                 </div>
+
+                <div class="pt-4 mt-4 border-t border-indigo-800">
+                    <p class="px-4 text-xs font-semibold text-indigo-300 uppercase tracking-wide mb-2">Pengaturan</p>
+                    <a href="ubah_password.php" class="flex items-center px-4 py-3 <?php echo $current_page == 'ubah_password' ? 'bg-indigo-800' : 'hover:bg-indigo-800'; ?> rounded-lg transition">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        <span>Ubah Password</span>
+                    </a>
+                </div>
             </nav>
             
             <!-- User Profile & Logout -->

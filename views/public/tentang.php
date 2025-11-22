@@ -45,16 +45,5 @@ include __DIR__ . '/../layouts/header_public.php';
         <?php endif; ?>
     </section>
 
-    <script>
-        // ===== Bagian: Animasi Scroll =====
-        window.addEventListener('scroll', () => {
-            const scrolled = window.pageYOffset;
-            const parallax = document.querySelector('.hero');
-            if (parallax) {
-                parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
-            }
-        });
-    </script>
-
 <?php include __DIR__ . '/../layouts/footer_public.php'; ?>
 

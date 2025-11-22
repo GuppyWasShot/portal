@@ -1,13 +1,11 @@
 /* ===== Bagian: Halaman Galeri ===== */
 body.page-galeri .gallery-hero {
-    background: linear-gradient(135deg, #f5edff 0%, #ead5ff 55%, #dcb6ff 100%);
-    padding: 180px 80px 120px;
+    background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%);
+    padding: var(--hero-padding-top) var(--hero-padding-x) var(--hero-padding-bottom);
     text-align: center;
     position: relative;
     overflow: hidden;
-    border-radius: 0 !important;
-    clip-path: none;
-    box-shadow: none;
+    border-radius: 0;
     color: #2d1b69;
 }
 
@@ -19,7 +17,7 @@ body.page-galeri .gallery-hero-content {
 }
 
 body.page-galeri .gallery-hero-content h1 {
-    font-size: 54px;
+    font-size: clamp(32px, 5vw, 54px);
     color: #2d1b69;
     margin-bottom: 12px;
     font-weight: 700;
@@ -30,7 +28,7 @@ body.page-galeri .gallery-hero-content h1 .highlight {
 }
 
 body.page-galeri .gallery-hero-content p {
-    font-size: 18px;
+    font-size: clamp(16px, 2vw, 18px);
     color: #5a4c76;
 }
 
@@ -46,11 +44,6 @@ body.page-galeri .gallery-container {
 }
 
 /* ===== Bagian: Filter Galeri ===== */
-body.page-galeri .filter-section {
-    margin: 0 auto 30px;
-    max-width: 900px;
-}
-
 body.page-galeri .filter-section {
     margin: 0 auto 30px;
     max-width: 900px;
@@ -166,7 +159,7 @@ body.page-galeri .category-chip:hover {
     color: #2d1b69;
 }
 
-body.page-galeri .category-bubble input[type="checkbox"]:checked + .category-chip,
+body.page-galeri .category-bubble input[type="checkbox"]:checked+.category-chip,
 body.page-galeri .category-chip.is-active {
     background: var(--bubble-color, #412358);
     border-color: var(--bubble-color, #412358);
@@ -199,9 +192,9 @@ body.page-galeri .gallery-grid {
 
 body.page-galeri .gallery-card {
     background: #f5f5f6;
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    box-shadow: var(--shadow-small);
     transition: transform 0.3s;
     text-decoration: none;
     color: inherit;
@@ -210,7 +203,7 @@ body.page-galeri .gallery-card {
 
 body.page-galeri .gallery-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    box-shadow: var(--shadow-hover);
 }
 
 body.page-galeri .gallery-card-image {
@@ -230,7 +223,7 @@ body.page-galeri .gallery-rating-badge {
     position: absolute;
     top: 10px;
     right: 10px;
-    background: rgba(255,255,255,0.9);
+    background: rgba(255, 255, 255, 0.9);
     padding: 5px 10px;
     border-radius: 20px;
     display: flex;
@@ -359,7 +352,7 @@ body.page-galeri .empty-state {
     padding: 60px 20px;
     background: white;
     border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
 }
 
 body.page-galeri .empty-state svg {
@@ -386,17 +379,13 @@ body.page-galeri .empty-state .btn-secondary {
 }
 
 /* ===== Bagian: Responsif Galeri ===== */
-@media (max-width: 1400px) {
+@media (max-width: 1024px) {
     body.page-galeri .gallery-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
 @media (max-width: 1024px) {
-    body.page-galeri .gallery-hero {
-        padding: 160px 40px 100px;
-    }
-
     body.page-galeri .gallery-section {
         padding: 40px 30px 70px;
     }
@@ -408,19 +397,6 @@ body.page-galeri .empty-state .btn-secondary {
 }
 
 @media (max-width: 768px) {
-    body.page-galeri .gallery-hero {
-        padding: 140px 20px 70px;
-    }
-
-    body.page-galeri .gallery-hero-content h1 {
-        font-size: 38px;
-        line-height: 1.3;
-    }
-
-    body.page-galeri .gallery-hero-content p {
-        font-size: 16px;
-    }
-
     body.page-galeri .gallery-section {
         padding: 40px 20px 70px;
     }
@@ -456,14 +432,6 @@ body.page-galeri .empty-state .btn-secondary {
 }
 
 @media (max-width: 576px) {
-    body.page-galeri .gallery-hero {
-        padding: 130px 16px 60px;
-    }
-
-    body.page-galeri .gallery-hero-content h1 {
-        font-size: 32px;
-    }
-
     body.page-galeri .gallery-section {
         padding: 30px 16px 60px;
     }
@@ -501,4 +469,3 @@ body.page-galeri .empty-state .btn-secondary {
         min-width: 40px;
     }
 }
-

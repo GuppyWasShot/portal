@@ -8,6 +8,8 @@
 require_once __DIR__ . '/../../app/autoload.php';
 
 $page_title = "Beranda";
+$body_class = 'page-home';
+$additional_stylesheets = ['assets/css/page-index.css'];
 
 // Inisialisasi Class
 $karyaModel = new Karya();
@@ -40,7 +42,7 @@ include __DIR__ . '/../layouts/header_public.php';
                 IPB University</span>
             </h1>
             <p>Ruang kreatif yang menghadirkan inovasi digital<br>untuk masyarakat.</p>
-            <a href="galeri.php" class="btn-primary" style="text-decoration: none; display: inline-block;">Jelajah Karya</a>
+            <a href="galeri.php" class="btn-view-all" style="text-decoration: none; display: inline-block;">Jelajah Karya</a>
         </div>
         <div class="hero-images">
             <?php 
@@ -223,29 +225,6 @@ include __DIR__ . '/../layouts/header_public.php';
                 }
             });
         });
-
-        // Add scroll animation to hero images
-        const heroImages = document.querySelectorAll('.hero-image');
-        heroImages.forEach((img, index) => {
-            img.style.animation = `fadeInUp 0.6s ease-out ${index * 0.1}s forwards`;
-            img.style.opacity = '0';
-        });
-
-        // CSS for animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 
 <?php include __DIR__ . '/../layouts/footer_public.php'; ?>

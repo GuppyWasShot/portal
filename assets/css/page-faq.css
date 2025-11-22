@@ -1,7 +1,7 @@
 /* ===== Bagian: Halaman FAQ ===== */
 body.page-faq .faq-hero {
     background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%);
-    padding: 160px 80px 120px;
+    padding: var(--hero-padding-top) var(--hero-padding-x) var(--hero-padding-bottom);
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -17,9 +17,10 @@ body.page-faq .faq-hero-content {
 }
 
 body.page-faq .faq-hero h1 {
-    font-size: 48px;
+    font-size: clamp(28px, 5vw, 48px);
     color: #2d1b69;
     margin-bottom: 20px;
+    font-weight: 700;
 }
 
 body.page-faq .faq-hero h1 .highlight {
@@ -29,7 +30,7 @@ body.page-faq .faq-hero h1 .highlight {
 body.page-faq .faq-hero p {
     color: #5a4c76;
     margin-bottom: 30px;
-    font-size: 16px;
+    font-size: clamp(15px, 2vw, 16px);
     line-height: 1.6;
 }
 
@@ -58,15 +59,15 @@ body.page-faq .faq-container {
 
 body.page-faq .faq-card {
     background: white;
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
     margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    box-shadow: var(--shadow-small);
     overflow: hidden;
     transition: all 0.3s;
 }
 
 body.page-faq .faq-card:hover {
-    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    box-shadow: var(--shadow-card);
 }
 
 body.page-faq .faq-card.active {
@@ -153,10 +154,6 @@ body.page-faq .faq-tags .tag {
 }
 
 @media (max-width: 768px) {
-    body.page-faq .faq-hero {
-        padding: 130px 20px 70px;
-    }
-
     body.page-faq .faq-wrapper {
         padding: 60px 20px 80px;
     }
@@ -190,9 +187,6 @@ body.page-faq .faq-tags .tag {
 }
 
 @media (max-width: 576px) {
-    body.page-faq .faq-hero {
-        padding: 120px 16px 60px;
-    }
 
     body.page-faq .faq-hero h1,
     body.page-faq .faq-wrapper h2 {

@@ -49,7 +49,7 @@ include __DIR__ . '/../layouts/header_public.php';
 <!-- ===== Bagian: Hero Galeri ===== -->
 <section class="gallery-hero">
     <div class="gallery-hero-content">
-        <h1>Daftar <span class="highlight">Karya</span></h1>
+        <h1>Cari <span class="highlight">Karya</span></h1>
         <p>Jelajahi inovasi dan kreativitas mahasiswa Teknologi Rekayasa Perangkat Lunak</p>
     </div>
 </section>
