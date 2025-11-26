@@ -22,7 +22,7 @@ function convertToWIB($datetime_string) {
     return date('d M Y, H:i', $timestamp);
 }
 
-// Ambil statistik
+// Ambil statistik - using direct queries (dashboard complex stats)
 $total_karya = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbl_project"))['total'];
 $total_published = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbl_project WHERE status = 'Published'"))['total'];
 $total_rating = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbl_rating"))['total'];

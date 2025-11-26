@@ -4,14 +4,10 @@ $body_class = 'page-matkul';
 $additional_stylesheets = ['assets/css/page-matkul.css'];
 
 require_once __DIR__ . '/../../app/autoload.php';
-$db = Database::getInstance()->getConnection();
-$matkul_list = [];
-$result = $db->query("SELECT * FROM tbl_matkul WHERE status = 'active' ORDER BY semester ASC, COALESCE(NULLIF(urutan, 0), 9999) ASC, nama ASC");
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $matkul_list[] = $row;
-    }
-}
+
+// Use Matkul model instead of raw SQL
+$matkulModel = new Matkul();
+$matkul_list = $matkulModel->getAll(['status' => 'active']);
 
 $grouped = [];
 foreach ($matkul_list as $matkul) {

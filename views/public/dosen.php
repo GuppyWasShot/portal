@@ -4,14 +4,11 @@ $body_class = 'page-dosen';
 $additional_stylesheets = ['assets/css/page-dosen.css'];
 
 require_once __DIR__ . '/../../app/autoload.php';
-$db = Database::getInstance()->getConnection();
-$dosen_list = [];
-$result = $db->query("SELECT * FROM tbl_dosen WHERE status = 'active' ORDER BY COALESCE(NULLIF(urutan, 0), 9999) ASC, nama ASC");
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $dosen_list[] = $row;
-    }
-}
+
+// Use Dosen model instead of raw SQL
+$dosenModel = new Dosen();
+$dosen_list = $dosenModel->getAll(['status' => 'active']);
+
 $default_photo = 'assets/img/fd.png';
 
 include __DIR__ . '/../layouts/header_public.php';
