@@ -106,7 +106,7 @@ include __DIR__ . '/../layouts/header_admin.php';
                         <input 
                             type="password" 
                             id="password_lama" 
-                            name="password_lama" 
+                            name="old_password" 
                             required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                             placeholder="Masukkan password lama"
@@ -133,7 +133,7 @@ include __DIR__ . '/../layouts/header_admin.php';
                         <input 
                             type="password" 
                             id="password_baru" 
-                            name="password_baru" 
+                            name="new_password" 
                             required
                             minlength="6"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
@@ -162,7 +162,7 @@ include __DIR__ . '/../layouts/header_admin.php';
                         <input 
                             type="password" 
                             id="konfirmasi_password" 
-                            name="konfirmasi_password" 
+                            name="confirm_password" 
                             required
                             minlength="6"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"

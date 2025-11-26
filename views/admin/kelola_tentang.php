@@ -13,9 +13,9 @@ $alert_message = '';
 if (isset($_GET['success'])) {
     $alert_type = 'success';
     $alert_message = match ($_GET['success']) {
-        'created' => 'Section berhasil ditambahkan.',
-        'updated' => 'Section berhasil diperbarui.',
-        'deleted' => 'Section berhasil dihapus.',
+        'created' => 'Section about berhasil ditambahkan.',
+        'updated' => 'Section about berhasil diperbarui.',
+        'deleted' => 'Section about berhasil dihapus.',
         default => ''
     };
 } elseif (isset($_GET['error'])) {
@@ -23,20 +23,15 @@ if (isset($_GET['success'])) {
     $alert_message = match ($_GET['error']) {
         'empty_field' => 'Judul dan konten wajib diisi.',
         'invalid_id' => 'ID section tidak valid.',
-        'not_found' => 'Section tidak ditemukan atau sudah dihapus.',
-        'database_error' => 'Terjadi kesalahan pada database. Coba lagi nanti.',
-        'invalid_request' => 'Permintaan tidak valid.',
+        'not_found' => 'Section tidak ditemukan.',
+        'database_error' => 'Terjadi kesalahan pada database.',
         default => 'Terjadi kesalahan. Coba lagi nanti.'
     };
 }
 
-$sections = [];
-$result = $conn->query("SELECT * FROM tbl_about_sections ORDER BY urutan ASC, created_at ASC");
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $sections[] = $row;
-    }
-}
+// Use About model instead of direct query
+$aboutModel = new About();
+$about_list = $aboutModel->getAll(['order' => 'urutan ASC, created_at ASC']);
 
 include __DIR__ . '/../layouts/header_admin.php';
 ?>
@@ -104,17 +99,17 @@ include __DIR__ . '/../layouts/header_admin.php';
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800">Daftar Section</h3>
-                    <p class="text-sm text-gray-500 mt-1">Total section: <?php echo count($sections); ?></p>
+                    <p class="text-sm text-gray-500 mt-1">Total section: <?php echo count($about_list); ?></p>
                 </div>
             </div>
 
-            <?php if (count($sections) === 0): ?>
+            <?php if (count($about_list) === 0): ?>
                 <div class="text-center py-12 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
                     Belum ada konten Tentang. Tambahkan section pertama Anda.
                 </div>
             <?php else: ?>
                 <div class="space-y-4">
-                    <?php foreach ($sections as $section): ?>
+                    <?php foreach ($about_list as $section): ?>
                     <div class="border border-gray-200 rounded-lg p-4">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                             <div>

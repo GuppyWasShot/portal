@@ -11,47 +11,27 @@ $alert_type = '';
 $alert_message = '';
 
 if (isset($_GET['success'])) {
-    switch ($_GET['success']) {
-        case 'created':
-            $alert_type = 'success';
-            $alert_message = 'Kategori berhasil ditambahkan.';
-            break;
-        case 'updated':
-            $alert_type = 'success';
-            $alert_message = 'Kategori berhasil diperbarui.';
-            break;
-        case 'deleted':
-            $alert_type = 'success';
-            $alert_message = 'Kategori berhasil dihapus.';
-            break;
-    }
+    $alert_type = 'success';
+    $alert_message = match ($_GET['success']) {
+        'created' => 'Kategori berhasil ditambahkan.',
+        'updated' => 'Kategori berhasil diperbarui.',
+        'deleted' => 'Kategori berhasil dihapus.',
+        default => ''
+    };
 } elseif (isset($_GET['error'])) {
     $alert_type = 'error';
-    switch ($_GET['error']) {
-        case 'empty_field':
-            $alert_message = 'Nama kategori wajib diisi.';
-            break;
-        case 'invalid_color':
-            $alert_message = 'Format warna tidak valid. Gunakan format HEX, misal #6366F1.';
-            break;
-        case 'not_found':
-            $alert_message = 'Kategori tidak ditemukan atau sudah dihapus.';
-            break;
-        case 'database_error':
-            $alert_message = 'Terjadi kesalahan pada database. Coba lagi nanti.';
-            break;
-        default:
-            $alert_message = 'Terjadi kesalahan. Coba lagi nanti.';
-            break;
-    }
+    $alert_message = match ($_GET['error']) {
+        'empty_field' => 'Nama kategori wajib diisi.',
+        'invalid_color' => 'Format warna tidak valid. Gunakan format HEX, misal #6366F1.',
+        'not_found' => 'Kategori tidak ditemukan atau sudah dihapus.',
+        'database_error' => 'Terjadi kesalahan pada database. Coba lagi nanti.',
+        default => 'Terjadi kesalahan. Coba lagi nanti.'
+    };
 }
 
-$query_kategori = "SELECT * FROM tbl_category ORDER BY nama_kategori ASC";
-$result_kategori = mysqli_query($conn, $query_kategori);
-$kategori_list = [];
-while ($row = mysqli_fetch_assoc($result_kategori)) {
-    $kategori_list[] = $row;
-}
+// Use Category model instead of direct query
+$categoryModel = new Category();
+$kategori_list = $categoryModel->getAll(['order' => 'nama_kategori ASC']);
 
 include __DIR__ . '/../layouts/header_admin.php';
 ?>

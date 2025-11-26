@@ -32,13 +32,9 @@ if (isset($_GET['success'])) {
     };
 }
 
-$dosen_list = [];
-$result = $conn->query("SELECT * FROM tbl_dosen ORDER BY status DESC, urutan ASC, nama ASC");
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $dosen_list[] = $row;
-    }
-}
+// Use Dosen model instead of direct query
+$dosenModel = new Dosen();
+$dosen_list = $dosenModel->getAll(['order' => 'status DESC, urutan ASC, nama ASC']);
 
 include __DIR__ . '/../layouts/header_admin.php';
 ?>

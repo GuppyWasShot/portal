@@ -1,10 +1,9 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header("Location: ../../views/admin/login.php?error=belum_login");
-    exit();
-}
+require_once __DIR__ . '/../../app/autoload.php';
+$auth = new Auth();
+$auth->requireAuth();
 
 $id_matkul = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -13,44 +12,29 @@ if ($id_matkul <= 0) {
     exit();
 }
 
-require_once __DIR__ . '/../../app/autoload.php';
-require_once __DIR__ . '/../../config/db_connect.php';
-
-$db = Database::getInstance()->getConnection();
-$conn = $db;
+$matkulModel = new Matkul();
 
 try {
-    $stmt = $conn->prepare("DELETE FROM tbl_matkul WHERE id_matkul = ?");
-    $stmt->bind_param("i", $id_matkul);
-    $stmt->execute();
-
-    if ($stmt->affected_rows === 0) {
-        $stmt->close();
+    $result = $matkulModel->delete($id_matkul);
+    
+    if ($result) {
+        $currentAdmin = $auth->getCurrentAdmin();
+        if ($currentAdmin) {
+            $auth->logActivity(
+                $currentAdmin['id_admin'],
+                $currentAdmin['username'],
+                "Menghapus mata kuliah ID: $id_matkul"
+            );
+        }
+        
+        header("Location: ../../views/admin/kelola_matkul.php?success=deleted");
+        exit();
+    } else {
         header("Location: ../../views/admin/kelola_matkul.php?error=not_found");
         exit();
     }
-
-    $stmt->close();
-
-    // Fix: Support both old and new session variable names
-    $admin_id_log = $_SESSION['admin_id'] ?? $_SESSION['id_admin'] ?? null;
-    $admin_username_log = $_SESSION['admin_username'] ?? $_SESSION['username'] ?? 'Unknown';
-    
-    if ($admin_id_log) {
-        logActivity(
-            $conn,
-            $admin_id_log,
-            $admin_username_log,
-            "Menghapus mata kuliah ID: $id_matkul"
-    
-        );
-    }
-
-    header("Location: ../../views/admin/kelola_matkul.php?success=deleted");
-    exit();
 } catch (Exception $e) {
     error_log('Gagal menghapus mata kuliah: ' . $e->getMessage());
     header("Location: ../../views/admin/kelola_matkul.php?error=database_error");
     exit();
 }
-

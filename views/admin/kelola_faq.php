@@ -30,13 +30,9 @@ if (isset($_GET['success'])) {
     };
 }
 
-$faq_list = [];
-$result = $conn->query("SELECT * FROM tbl_faq ORDER BY status DESC, urutan ASC, created_at DESC");
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $faq_list[] = $row;
-    }
-}
+// Use Faq model instead of direct query
+$faqModel = new Faq();
+$faq_list = $faqModel->getAll(['order' => 'status DESC, urutan ASC, created_at DESC']);
 
 include __DIR__ . '/../layouts/header_admin.php';
 ?>

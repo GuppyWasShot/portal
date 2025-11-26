@@ -29,13 +29,9 @@ if (isset($_GET['success'])) {
     };
 }
 
-$matkul_list = [];
-$result = $conn->query("SELECT * FROM tbl_matkul ORDER BY semester ASC, urutan ASC, nama ASC");
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $matkul_list[] = $row;
-    }
-}
+// Use Matkul model instead of direct query
+$matkulModel = new Matkul();
+$matkul_list = $matkulModel->getAll(['order' => 'semester ASC, urutan ASC, nama ASC']);
 
 include __DIR__ . '/../layouts/header_admin.php';
 ?>

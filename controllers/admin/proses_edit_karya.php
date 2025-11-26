@@ -71,7 +71,49 @@ try {
     }
     $stmt_kategori->close();
     
-    // 3. Insert link tambahan baru
+    // 3. Process staged file deletions
+    if (isset($_POST['delete_files']) && is_array($_POST['delete_files']) && !empty($_POST['delete_files'])) {
+        foreach ($_POST['delete_files'] as $file_id) {
+            $file_id = intval($file_id);
+            
+            // Get file info before deletion (for physical file removal)
+            $stmt_get_file = $conn->prepare("SELECT file_path FROM tbl_project_files WHERE id_file = ?");
+            $stmt_get_file->bind_param("i", $file_id);
+            $stmt_get_file->execute();
+            $result_file = $stmt_get_file->get_result();
+            $file_data = $result_file->fetch_assoc();
+            $stmt_get_file->close();
+            
+            if ($file_data) {
+                // Delete from database
+                $stmt_del_file = $conn->prepare("DELETE FROM tbl_project_files WHERE id_file = ?");
+                $stmt_del_file->bind_param("i", $file_id);
+                $stmt_del_file->execute();
+                $stmt_del_file->close();
+                
+                // Delete physical file
+                $physical_path = __DIR__ . '/../../' . $file_data['file_path'];
+                if (file_exists($physical_path) && is_file($physical_path)) {
+                    unlink($physical_path);
+                }
+            }
+        }
+    }
+    
+    // 4. Process staged link deletions
+    if (isset($_POST['delete_links']) && is_array($_POST['delete_links']) && !empty($_POST['delete_links'])) {
+        foreach ($_POST['delete_links'] as $link_id) {
+            $link_id = intval($link_id);
+            
+            // Delete from database (only non-primary links can be deleted from UI)
+            $stmt_del_link = $conn->prepare("DELETE FROM tbl_project_links WHERE id_link = ? AND is_primary = 0");
+            $stmt_del_link->bind_param("i", $link_id);
+            $stmt_del_link->execute();
+            $stmt_del_link->close();
+        }
+    }
+    
+    // 5. Insert link tambahan baru
     if (!empty($link_labels) && !empty($link_urls)) {
         $stmt_link = $conn->prepare(
             "INSERT INTO tbl_project_links (id_project, label, url, is_primary) VALUES (?, ?, ?, 0)"
@@ -86,7 +128,7 @@ try {
         $stmt_link->close();
     }
     
-    // 4. Handle upload snapshot baru
+    // 6. Handle upload snapshot baru
     if (isset($_FILES['snapshots']) && !empty($_FILES['snapshots']['name'][0])) {
         // Gunakan path absolut untuk kompatibilitas dengan hosting
         $upload_dir = __DIR__ . '/../../uploads/snapshots/';
@@ -158,7 +200,7 @@ try {
         }
     }
     
-    // 5. Handle file pendukung baru
+    // 7. Handle file pendukung baru
     if (isset($_FILES['file_upload']) && !empty($_FILES['file_upload']['name'][0])) {
         $file_labels = isset($_POST['file_label']) ? $_POST['file_label'] : [];
         
@@ -222,7 +264,7 @@ try {
         $stmt_file->close();
     }
     
-    // 6. Pastikan snapshot_url terisi jika masih NULL
+    // 8. Pastikan snapshot_url terisi jika masih NULL
     // Cek apakah snapshot_url masih NULL atau kosong
     $stmt_check = $conn->prepare("SELECT snapshot_url FROM tbl_project WHERE id_project = ?");
     $stmt_check->bind_param("i", $id_project);
@@ -253,7 +295,7 @@ try {
         }
     }
     
-    // 7. Log aktivitas
+    // 9. Log aktivitas
     // Fix: Support both old and new session variable names
     $admin_id_log = $_SESSION['admin_id'] ?? $_SESSION['id_admin'] ?? null;
     $admin_username_log = $_SESSION['admin_username'] ?? $_SESSION['username'] ?? 'Unknown';

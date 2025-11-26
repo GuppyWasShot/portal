@@ -197,7 +197,7 @@ $stmt->close();
                 </label>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <?php foreach ($snapshots as $snapshot): ?>
-                    <div class="relative group">
+                    <div class="relative group" data-file-id="<?php echo $snapshot['id_file']; ?>">
                         <img src="../../<?php echo htmlspecialchars($snapshot['file_path']); ?>" 
                              class="w-full h-32 object-cover rounded-lg border-2 border-gray-300">
                         <button type="button" onclick="deleteFile(<?php echo $snapshot['id_file']; ?>)"
@@ -237,7 +237,7 @@ $stmt->close();
                 <label class="block text-sm font-medium text-gray-700 mb-2">Link Karya</label>
                 <div class="space-y-3 mb-3">
                     <?php foreach ($links as $link): ?>
-                    <div class="flex gap-2 items-start bg-gray-50 p-3 rounded-lg">
+                    <div class="flex gap-2 items-start bg-gray-50 p-3 rounded-lg" data-link-id="<?php echo $link['id_link']; ?>">
                         <input type="text" value="<?php echo htmlspecialchars($link['label']); ?>" readonly
                                class="w-1/3 px-3 py-2 border border-gray-200 rounded-lg bg-white">
                         <input type="url" value="<?php echo htmlspecialchars($link['url']); ?>" readonly
@@ -275,7 +275,7 @@ $stmt->close();
                 ?>
                 <div class="space-y-2 mb-3">
                     <?php foreach ($docs as $doc): ?>
-                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg" data-file-id="<?php echo $doc['id_file']; ?>">
                         <div>
                             <p class="text-sm font-medium"><?php echo htmlspecialchars($doc['label']); ?></p>
                             <p class="text-xs text-gray-500"><?php echo htmlspecialchars($doc['nama_file']); ?></p>
@@ -321,6 +321,8 @@ $stmt->close();
 
 <script>
 let selectedFiles = [];
+let filesToDelete = []; // Track files marked for deletion
+let linksToDelete = []; // Track links marked for deletion
 
 document.getElementById('snapshotInput').addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
@@ -432,16 +434,123 @@ function addFileField() {
     container.appendChild(div);
 }
 
+// NEW: Staged deletion for files (snapshots & documents)
 function deleteFile(id) {
-    if (confirm('Hapus file ini?')) {
-        window.location.href = '../../controllers/admin/delete_file.php?id=' + id + '&project=<?php echo $id_project; ?>';
+    if (confirm('Tandai file untuk dihapus?\n\nFile akan dihapus dari database saat Anda klik "Update".')) {
+        // Hide from UI
+        const fileElement = document.querySelector(`[data-file-id="${id}"]`);
+        if (fileElement) {
+            // Add "marked for deletion" overlay
+            fileElement.style.position = 'relative';
+            fileElement.style.opacity = '0.4';
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'absolute inset-0 bg-red-500 bg-opacity-20 flex items-center justify-center rounded-lg';
+            overlay.innerHTML = `
+                <div class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2">
+                    <span>Akan Dihapus</span>
+                    <button type="button" onclick="undoDeleteFile(${id})" class="bg-white text-red-600 px-2 py-0.5 rounded hover:bg-gray-100">
+                        Undo
+                    </button>
+                </div>
+            `;
+            fileElement.appendChild(overlay);
+            
+            // Add to deletion queue
+            if (!filesToDelete.includes(id)) {
+                filesToDelete.push(id);
+                updateDeleteInputs();
+            }
+        }
     }
 }
 
-function deleteLink(id) {
-    if (confirm('Hapus link ini?')) {
-        window.location.href = '../../controllers/admin/delete_link.php?id=' + id + '&project=<?php echo $id_project; ?>';
+function undoDeleteFile(id) {
+    // Remove from deletion queue
+    const index = filesToDelete.indexOf(id);
+    if (index > -1) {
+        filesToDelete.splice(index, 1);
+        updateDeleteInputs();
     }
+    
+    // Restore UI
+    const fileElement = document.querySelector(`[data-file-id="${id}"]`);
+    if (fileElement) {
+        fileElement.style.opacity = '1';
+        const overlay = fileElement.querySelector('.absolute');
+        if (overlay) overlay.remove();
+    }
+}
+
+// NEW: Staged deletion for links
+function deleteLink(id) {
+    if (confirm('Tandai link untuk dihapus?\n\nLink akan dihapus dari database saat Anda klik "Update".')) {
+        const linkElement = document.querySelector(`[data-link-id="${id}"]`);
+        if (linkElement) {
+            linkElement.style.position = 'relative';
+            linkElement.style.opacity = '0.4';
+            linkElement.classList.add('bg-red-50');
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'absolute inset-0 flex items-center justify-center';
+            overlay.innerHTML = `
+                <div class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2">
+                    <span>Akan Dihapus</span>
+                    <button type="button" onclick="undoDeleteLink(${id})" class="bg-white text-red-600 px-2 py-0.5 rounded hover:bg-gray-100">
+                        Undo
+                    </button>
+                </div>
+            `;
+            linkElement.appendChild(overlay);
+            
+            if (!linksToDelete.includes(id)) {
+                linksToDelete.push(id);
+                updateDeleteInputs();
+            }
+        }
+    }
+}
+
+function undoDeleteLink(id) {
+    const index = linksToDelete.indexOf(id);
+    if (index > -1) {
+        linksToDelete.splice(index, 1);
+        updateDeleteInputs();
+    }
+    
+    const linkElement = document.querySelector(`[data-link-id="${id}"]`);
+    if (linkElement) {
+        linkElement.style.opacity = '1';
+        linkElement.classList.remove('bg-red-50');
+        const overlay = linkElement.querySelector('.absolute');
+        if (overlay) overlay.remove();
+    }
+}
+
+// Update hidden inputs for deletions
+function updateDeleteInputs() {
+    // Remove old deletion inputs
+    document.querySelectorAll('input[name="delete_files[]"]').forEach(el => el.remove());
+    document.querySelectorAll('input[name="delete_links[]"]').forEach(el => el.remove());
+    
+    // Add new deletion inputs
+    const form = document.querySelector('form');
+    
+    filesToDelete.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'delete_files[]';
+        input.value = id;
+        form.appendChild(input);
+    });
+    
+    linksToDelete.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'delete_links[]';
+        input.value = id;
+        form.appendChild(input);
+    });
 }
 </script>
 

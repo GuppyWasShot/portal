@@ -1,51 +1,49 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header("Location: ../../views/admin/login.php?error=belum_login");
-    exit();
-}
+// Use Auth model for authentication
+require_once __DIR__ . '/../../app/autoload.php';
+$auth = new Auth();
+$auth->requireAuth();
 
+// Check request method
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: ../../views/admin/kelola_dosen.php?error=invalid_request");
     exit();
 }
 
-require_once __DIR__ . '/../../app/autoload.php';
-require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '/../../helpers/text_helper.php';
 
-$db = Database::getInstance()->getConnection();
-$conn = $db;
+// Initialize Dosen model
+$dosenModel = new Dosen();
 
+// Get ID and prepare data from POST
 $id_dosen = isset($_POST['id_dosen']) ? intval($_POST['id_dosen']) : 0;
-$nama = isset($_POST['nama']) ? trim($_POST['nama']) : '';
-$gelar = isset($_POST['gelar']) ? trim($_POST['gelar']) : '';
-$jabatan = isset($_POST['jabatan']) ? trim($_POST['jabatan']) : '';
-$email = isset($_POST['email']) ? trim($_POST['email']) : '';
-$deskripsi = isset($_POST['deskripsi']) ? trim($_POST['deskripsi']) : '';
-$urutan = isset($_POST['urutan']) ? intval($_POST['urutan']) : 0;
-$status = isset($_POST['status']) && $_POST['status'] === 'inactive' ? 'inactive' : 'active';
 
-if ($id_dosen <= 0 || empty($nama)) {
+$data = [
+    'nama' => isset($_POST['nama']) ? trim($_POST['nama']) : '',
+    'gelar' => isset($_POST['gelar']) ? trim($_POST['gelar']) : '',
+    'jabatan' => isset($_POST['jabatan']) ? trim($_POST['jabatan']) : '',
+    'email' => isset($_POST['email']) ? trim($_POST['email']) : '',
+    'deskripsi' => isset($_POST['deskripsi']) ? trim($_POST['deskripsi']) : '',
+    'urutan' => isset($_POST['urutan']) ? intval($_POST['urutan']) : 0,
+    'status' => isset($_POST['status']) && $_POST['status'] === 'inactive' ? 'inactive' : 'active'
+];
+
+// Validate
+if ($id_dosen <= 0 || empty($data['nama'])) {
     header("Location: ../../views/admin/kelola_dosen.php?error=empty_field");
     exit();
 }
 
-$stmt = $conn->prepare("SELECT foto_url FROM tbl_dosen WHERE id_dosen = ?");
-$stmt->bind_param("i", $id_dosen);
-$stmt->execute();
-$result = $stmt->get_result();
-$existing = $result->fetch_assoc();
-$stmt->close();
-
+// Get existing dosen data
+$existing = $dosenModel->getById($id_dosen);
 if (!$existing) {
     header("Location: ../../views/admin/kelola_dosen.php?error=not_found");
     exit();
 }
 
-$foto_path = $existing['foto_url'];
-
+// Handle file upload (controller responsibility)
 if (isset($_FILES['foto']) && !empty($_FILES['foto']['name'])) {
     $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
     $max_size = 2 * 1024 * 1024;
@@ -59,71 +57,70 @@ if (isset($_FILES['foto']) && !empty($_FILES['foto']['name'])) {
         exit();
     }
 
-    $upload_dir = __DIR__ . '/../../assets/img/dosen/';
+    // Use ABSOLUTE PATH with __DIR__ - Changed to uploads/dosen/
+    $upload_dir = __DIR__ . '/../../uploads/dosen/';
+    
+    // Auto-create directory if not exists
     if (!file_exists($upload_dir)) {
         if (!mkdir($upload_dir, 0755, true)) {
-            header("Location: ../../views/admin/kelola_dosen.php?error=upload_dir");
+            error_log("Failed to create dosen upload directory: " . $upload_dir);
+            header("Location: ../../views/admin/kelola_dosen.php?error=upload_dir_create_failed");
             exit();
         }
     }
 
+    // Check if directory is writable
     if (!is_writable($upload_dir)) {
-        header("Location: ../../views/admin/kelola_dosen.php?error=upload_dir");
+        error_log("Dosen upload directory not writable: " . $upload_dir);
+        header("Location: ../../views/admin/kelola_dosen.php?error=upload_dir_not_writable");
         exit();
     }
 
     $file_ext = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
-    $slug = slugify_text($nama, 60);
+    $slug = slugify_text($data['nama'], 60);
     $file_name = 'dosen_' . $slug . '_' . time() . '.' . $file_ext;
     $file_path = $upload_dir . $file_name;
 
     if (move_uploaded_file($file_tmp, $file_path)) {
-        // Hapus foto lama jika ada
-        if (!empty($foto_path)) {
-            $old_path = __DIR__ . '/../../' . $foto_path;
+        // Delete old photo if exists
+        if (!empty($existing['foto_url'])) {
+            $old_path = __DIR__ . '/../../' . $existing['foto_url'];
             if (file_exists($old_path) && is_file($old_path)) {
                 unlink($old_path);
             }
         }
-        $foto_path = 'assets/img/dosen/' . $file_name;
+        // Store relative path for database - Changed to uploads/dosen/
+        $data['foto_url'] = 'uploads/dosen/' . $file_name;
     } else {
+        error_log("Failed to upload dosen photo: " . $file_name);
         header("Location: ../../views/admin/kelola_dosen.php?error=upload_failed");
         exit();
     }
 }
 
+// Update dosen using model
 try {
-    $stmt = $conn->prepare("UPDATE tbl_dosen SET nama = ?, gelar = ?, jabatan = ?, email = ?, foto_url = ?, deskripsi = ?, urutan = ?, status = ? WHERE id_dosen = ?");
-    $stmt->bind_param("ssssssisi", $nama, $gelar, $jabatan, $email, $foto_path, $deskripsi, $urutan, $status, $id_dosen);
-    $stmt->execute();
-
-    if ($stmt->affected_rows === 0) {
-        $stmt->close();
+    $result = $dosenModel->update($id_dosen, $data);
+    
+    if ($result) {
+        // Log activity using Auth model
+        $currentAdmin = $auth->getCurrentAdmin();
+        if ($currentAdmin) {
+            $auth->logActivity(
+                $currentAdmin['id_admin'],
+                $currentAdmin['username'],
+                "Mengubah data dosen: {$data['nama']}"
+            );
+        }
+        
+        header("Location: ../../views/admin/kelola_dosen.php?success=updated");
+        exit();
+    } else {
         header("Location: ../../views/admin/kelola_dosen.php?error=not_found");
         exit();
     }
-
-    $stmt->close();
-
-    // Fix: Support both old and new session variable names
-    $admin_id_log = $_SESSION['admin_id'] ?? $_SESSION['id_admin'] ?? null;
-    $admin_username_log = $_SESSION['admin_username'] ?? $_SESSION['username'] ?? 'Unknown';
-    
-    if ($admin_id_log) {
-        logActivity(
-            $conn,
-            $admin_id_log,
-            $admin_username_log,
-            "Mengubah data dosen: $nama"
-    
-        );
-    }
-
-    header("Location: ../../views/admin/kelola_dosen.php?success=updated");
-    exit();
 } catch (Exception $e) {
     error_log('Gagal mengedit dosen: ' . $e->getMessage());
     header("Location: ../../views/admin/kelola_dosen.php?error=database_error");
     exit();
 }
-

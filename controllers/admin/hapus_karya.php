@@ -1,15 +1,9 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header("Location: ../../views/admin/login.php?error=belum_login");
-    exit();
-}
-
 require_once __DIR__ . '/../../app/autoload.php';
-require_once __DIR__ . '/../../config/db_connect.php';
-$db = Database::getInstance()->getConnection();
-$conn = $db;
+$auth = new Auth();
+$auth->requireAuth();
 
 $id_project = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -18,68 +12,60 @@ if ($id_project <= 0) {
     exit();
 }
 
-// Ambil data karya
-$stmt = $conn->prepare("SELECT judul FROM tbl_project WHERE id_project = ?");
-$stmt->bind_param("i", $id_project);
-$stmt->execute();
-$result = $stmt->get_result();
-$karya = $result->fetch_assoc();
-$stmt->close();
+$karyaModel = new Karya();
 
-if (!$karya) {
+// Get project data before deletion (for file cleanup and logging)
+$project = $karyaModel->getKaryaById($id_project);
+
+if (!$project) {
     header("Location: ../../views/admin/kelola_karya.php?error=not_found");
     exit();
 }
 
-// Ambil file yang akan dihapus
-$stmt = $conn->prepare("SELECT file_path FROM tbl_project_files WHERE id_project = ?");
-$stmt->bind_param("i", $id_project);
-$stmt->execute();
-$result = $stmt->get_result();
-$files_to_delete = [];
-while ($row = $result->fetch_assoc()) {
-    $files_to_delete[] = '../' . $row['file_path'];
-}
-$stmt->close();
-
-mysqli_begin_transaction($conn);
-
 try {
-    // Hapus file fisik
-    foreach ($files_to_delete as $file_path) {
-        if (file_exists($file_path)) {
-            unlink($file_path);
+    // Get all files for physical deletion
+    $files = $karyaModel->getFiles($id_project);
+    
+    // Delete project using model (CASCADE will handle related data)
+    $result = $karyaModel->hapusKarya($id_project);
+    
+    if ($result) {
+        // Delete snapshot if exists
+        if (!empty($project['snapshot_url'])) {
+            $snapshot_path = __DIR__ . '/../../' . $project['snapshot_url'];
+            if (file_exists($snapshot_path) && is_file($snapshot_path)) {
+                unlink($snapshot_path);
+            }
         }
+        
+        // Delete all project files
+        foreach ($files as $file) {
+            if (!empty($file['file_path'])) {
+                $file_path_full = __DIR__ . '/../../' . $file['file_path'];
+                if (file_exists($file_path_full) && is_file($file_path_full)) {
+                    unlink($file_path_full);
+                }
+            }
+        }
+        
+        $currentAdmin = $auth->getCurrentAdmin();
+        if ($currentAdmin) {
+            $auth->logActivity(
+                $currentAdmin['id_admin'],
+                $currentAdmin['username'],
+                "Menghapus project: {$project['judul']} (ID: $id_project)",
+                $id_project
+            );
+        }
+        
+        header("Location: ../../views/admin/kelola_karya.php?success=deleted");
+        exit();
+    } else {
+        header("Location: ../../views/admin/kelola_karya.php?error=not_found");
+        exit();
     }
-    
-    // Hapus dari database (CASCADE akan menghapus relasi)
-    $stmt = $conn->prepare("DELETE FROM tbl_project WHERE id_project = ?");
-    $stmt->bind_param("i", $id_project);
-    $stmt->execute();
-    $stmt->close();
-    
-    // Fix: Support both old and new session variable names
-    $admin_id_log = $_SESSION['admin_id'] ?? $_SESSION['id_admin'] ?? null;
-    $admin_username_log = $_SESSION['admin_username'] ?? $_SESSION['username'] ?? 'Unknown';
-    
-    if ($admin_id_log) {
-        logActivity(
-            $conn, 
-            $admin_id_log, 
-            $admin_username_log, 
-            "Menghapus karya: " . $karya['judul']
-        );
-    }
-
-    
-    mysqli_commit($conn);
-    
-    header("Location: ../../views/admin/kelola_karya.php?tab=daftar&success=hapus");
-    exit();
-    
 } catch (Exception $e) {
-    mysqli_rollback($conn);
-    header("Location: ../../views/admin/kelola_karya.php?tab=daftar&error=delete_failed");
+    error_log('Gagal menghapus karya: ' . $e->getMessage());
+    header("Location: ../../views/admin/kelola_karya.php?error=database_error");
     exit();
 }
-?>

@@ -5,63 +5,64 @@ $current_page = 'kelola_karya';
 require_once __DIR__ . '/../../app/autoload.php';
 $db = Database::getInstance()->getConnection();
 $conn = $db;
-include __DIR__ . '/../layouts/header_admin.php';
 
-// Ambil parameter sorting
-$sort_by = isset($_GET['sort']) ? $_GET['sort'] : 'id_project';
-$sort_order = isset($_GET['order']) ? $_GET['order'] : 'DESC';
+$alert_type = '';
+$alert_message = '';
 
-// Validasi sort_by untuk keamanan
-$allowed_sort = ['id_project', 'judul', 'pembuat', 'tanggal_selesai', 'status', 'avg_rating', 'total_rating'];
-if (!in_array($sort_by, $allowed_sort)) {
-    $sort_by = 'id_project';
+if (isset($_GET['success'])) {
+    $alert_type = 'success';
+    $alert_message = match ($_GET['success']) {
+        'created' => 'Karya berhasil ditambahkan.',
+        'updated' => 'Karya berhasil diperbarui.',
+        'deleted' => 'Karya berhasil dihapus.',
+        'status_updated' => 'Status karya berhasil diubah.',
+        'file_deleted' => 'File berhasil dihapus.',
+        'link_deleted' => 'Link berhasil dihapus.',
+        default => ''
+    };
+} elseif (isset($_GET['error'])) {
+    $alert_type = 'error';
+    $alert_message = match ($_GET['error']) {
+        'empty_field' => 'Judul wajib diisi.',
+        'invalid_id' => 'ID karya tidak valid.',
+        'not_found' => 'Karya tidak ditemukan.',
+        'database_error' => 'Terjadi kesalahan pada database.',
+        default => 'Terjadi kesalahan. Coba lagi nanti.'
+    };
 }
 
-// Validasi sort_order
-$sort_order = strtoupper($sort_order);
-if ($sort_order !== 'ASC' && $sort_order !== 'DESC') {
-    $sort_order = 'DESC';
-}
-
-// Pagination settings
-$per_page = 15; // Items per page
+// Get filters from URL
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$status_filter = isset($_GET['status']) ? $_GET['status'] : null;
+$sort = isset($_GET['sort']) ? $_GET['sort'] : 'terbaru';
 $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$per_page = 15; // Items per page
 
-// Build WHERE conditions
-$where_conditions = [];
-$params = [];
-$types = "";
+// Use Karya model instead of direct complex query
+$karyaModel = new Karya();
+$filters = [
+    'search' => $search,
+    'sort' => $sort,
+    'page' => $current_page,
+    'per_page' => $per_page
+];
 
-// No additional filters for now, but can be added later
-$where_clause = "1=1"; // Always true, placeholder
+// Add status filter if provided
+if ($status_filter !== null && $status_filter !== '') {
+    $filters['status'] = $status_filter;
+}
 
-// Count total untuk pagination
-$count_query = "SELECT COUNT(DISTINCT p.id_project) as total
-                FROM tbl_project p
-                LEFT JOIN tbl_project_category pc ON p.id_project = pc.id_project
-                LEFT JOIN tbl_category c ON pc.id_kategori = c.id_kategori
-                LEFT JOIN tbl_rating r ON p.id_project = r.id_project
-                WHERE $where_clause";
-$count_result = mysqli_query($conn, $count_query);
-$total_karya = $count_result->fetch_assoc()['total'];
-$total_pages = ceil($total_karya / $per_page);
+// Get paginated results
+$result = $karyaModel->getAllForAdmin($filters);
+$karya_list = $result['data'];
+$total_karya = $result['total'];
+$total_pages = $result['total_pages'];
 
-// Ambil karya dengan pagination
-$offset = ($current_page - 1) * $per_page;
-$query_all_karya = "SELECT p.*, 
-                    GROUP_CONCAT(DISTINCT c.nama_kategori ORDER BY c.nama_kategori SEPARATOR ', ') as kategori,
-                    GROUP_CONCAT(DISTINCT c.warna_hex ORDER BY c.nama_kategori SEPARATOR ',') as warna,
-                    AVG(r.skor) as avg_rating,
-                    COUNT(DISTINCT r.id_rating) as total_rating
-                    FROM tbl_project p
-                    LEFT JOIN tbl_project_category pc ON p.id_project = pc.id_project
-                    LEFT JOIN tbl_category c ON pc.id_kategori = c.id_kategori
-                    LEFT JOIN tbl_rating r ON p.id_project = r.id_project
-                    WHERE $where_clause
-                    GROUP BY p.id_project
-                    ORDER BY $sort_by $sort_order
-                    LIMIT $per_page OFFSET $offset";
-$result_all_karya = mysqli_query($conn, $query_all_karya);
+// Get category list for filter dropdown (if needed in future)
+$categoryModel = new Category();
+$categories = $categoryModel->getAll();
+
+include __DIR__ . '/../layouts/header_admin.php';
 ?>
 
 <header class="bg-white shadow-sm">
@@ -163,7 +164,7 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
-                        <?php while($karya = mysqli_fetch_assoc($result_all_karya)): ?>
+                        <?php foreach($karya_list as $karya): ?>
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4">
                                 <div class="text-sm font-medium text-gray-900">
@@ -204,13 +205,15 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                                     <span class="text-gray-400 text-xs ml-1">(<?php echo $karya['total_rating']; ?>)</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-sm">
+                            <td class="px-6 py-4 text-sm whitespace-nowrap">
+                                <!-- Status Badge (Display Only) -->
                                 <?php 
-                                $status_class = $karya['status'] == 'Published' ? 'bg-green-100 text-green-800' : 
-                                               ($karya['status'] == 'Draft' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800');
+                                $status_class = $karya['status'] == 'Published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+                                $status_icon = $karya['status'] == 'Published' ? '✓' : '⊙';
                                 ?>
-                                <span class="px-2 py-1 rounded-full text-xs font-medium <?php echo $status_class; ?>">
-                                    <?php echo htmlspecialchars($karya['status']); ?>
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium <?php echo $status_class; ?>">
+                                    <span><?php echo $status_icon; ?></span>
+                                    <span><?php echo htmlspecialchars($karya['status']); ?></span>
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-sm">
@@ -233,13 +236,33 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                                                     </svg>
                                                     Edit Karya
                                                 </a>
-                                                <a href="../../controllers/admin/change_status.php?id=<?php echo $karya['id_project']; ?>" 
-                                                   class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                                    </svg>
-                                                    Ubah Status
-                                                </a>
+                                                
+                                                <!-- Status Change Options -->
+                                                <?php if ($karya['status'] !== 'Published'): ?>
+                                                <form action="../../controllers/admin/change_status.php" method="POST" class="inline w-full" onsubmit="return confirm('Publish karya ini?');">
+                                                    <input type="hidden" name="id_project" value="<?php echo $karya['id_project']; ?>">
+                                                    <input type="hidden" name="status" value="Published">
+                                                    <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-green-700 hover:bg-green-50">
+                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        Publish
+                                                    </button>
+                                                </form>
+                                                <?php endif; ?>
+                                                
+                                                <?php if ($karya['status'] !== 'Draft'): ?>
+                                                <form action="../../controllers/admin/change_status.php" method="POST" class="inline w-full" onsubmit="return confirm('Jadikan Draft?');">
+                                                    <input type="hidden" name="id_project" value="<?php echo $karya['id_project']; ?>">
+                                                    <input type="hidden" name="status" value="Draft">
+                                                    <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-50">
+                                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                        </svg>
+                                                        Jadikan Draft
+                                                    </button>
+                                                </form>
+                                                <?php endif; ?>
                                                 <hr class="my-1">
                                                 <a href="../../controllers/admin/hapus_karya.php?id=<?php echo $karya['id_project']; ?>" 
                                                    onclick="return confirmDelete('<?php echo htmlspecialchars($karya['judul']); ?>')"
@@ -255,13 +278,13 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                                 </div>
                             </td>
                         </tr>
-                        <?php endwhile; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
             
-            <!-- Pagination Info -->
-            <div class="mt-4 flex items-center justify-between">
+            <!-- Pagination Controls -->
+            <div class="mt-6 flex flex-col md:flex-row items-center justify-between gap-4 px-6 pb-6">
                 <div class="text-sm text-gray-600">
                     Menampilkan <strong><?php echo (($current_page - 1) * $per_page) + 1; ?></strong> - 
                     <strong><?php echo min($current_page * $per_page, $total_karya); ?></strong> dari 
@@ -271,14 +294,16 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                 <?php if ($total_pages > 1): ?>
                 <div class="flex gap-2">
                     <?php
-                    // Build query params
+                    // Build query params for pagination links
                     $query_params = $_GET;
                     unset($query_params['page']);
+                    $base_url = '?' . http_build_query($query_params);
+                    $base_url .= empty($query_params) ? 'page=' : '&page=';
                     ?>
                     
                     <!-- Previous Button -->
                     <?php if ($current_page > 1): ?>
-                    <a href="?<?php echo http_build_query(array_merge($query_params, ['page' => $current_page - 1])); ?>" 
+                    <a href="<?php echo $base_url . ($current_page - 1); ?>" 
                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                         ← Prev
                     </a>
@@ -293,8 +318,10 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                     $start_page = max(1, $current_page - 2);
                     $end_page = min($total_pages, $current_page + 2);
                     
-                    if ($start_page > 1): ?>
-                        <a href="?<?php echo http_build_query(array_merge($query_params, ['page' => 1])); ?>" 
+                    // First page + ellipsis
+                    if ($start_page > 1):
+                    ?>
+                        <a href="<?php echo $base_url . '1'; ?>" 
                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                             1
                         </a>
@@ -303,24 +330,26 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                         <?php endif; ?>
                     <?php endif; ?>
                     
+                    <!-- Page range -->
                     <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
                         <?php if ($i == $current_page): ?>
                         <span class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-indigo-600 rounded-lg">
                             <?php echo $i; ?>
                         </span>
                         <?php else: ?>
-                        <a href="?<?php echo http_build_query(array_merge($query_params, ['page' => $i])); ?>" 
+                        <a href="<?php echo $base_url . $i; ?>" 
                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                             <?php echo $i; ?>
                         </a>
                         <?php endif; ?>
                     <?php endfor; ?>
                     
+                    <!-- Last page + ellipsis -->
                     <?php if ($end_page < $total_pages): ?>
                         <?php if ($end_page < $total_pages - 1): ?>
                         <span class="px-4 py-2 text-sm font-medium text-gray-400">...</span>
                         <?php endif; ?>
-                        <a href="?<?php echo http_build_query(array_merge($query_params, ['page' => $total_pages])); ?>" 
+                        <a href="<?php echo $base_url . $total_pages; ?>" 
                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                             <?php echo $total_pages; ?>
                         </a>
@@ -328,7 +357,7 @@ $result_all_karya = mysqli_query($conn, $query_all_karya);
                     
                     <!-- Next Button -->
                     <?php if ($current_page < $total_pages): ?>
-                    <a href="?<?php echo http_build_query(array_merge($query_params, ['page' => $current_page + 1])); ?>" 
+                    <a href="<?php echo $base_url . ($current_page + 1); ?>" 
                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                         Next →
                     </a>
