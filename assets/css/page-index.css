@@ -11,11 +11,7 @@ body.page-home {
 /* ===== Hero ===== */
 body.page-home .hero {
     background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%);
-    padding: clamp(120px, 18vh, 160px) clamp(24px, 6vw, 80px) clamp(80px, 12vh, 110px);
-    display: flex;
-    justify-content: space-between;
-    gap: 40px;
-    align-items: center;
+    padding: clamp(120px, 18vh, 160px) 0 clamp(80px, 12vh, 110px);
     position: relative;
     overflow: hidden;
     color: #2d1b69;
@@ -23,9 +19,34 @@ body.page-home .hero {
     min-height: 480px;
 }
 
+body.page-home .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    z-index: 0;
+}
+
+body.page-home .hero>* {
+    position: relative;
+    z-index: 1;
+}
+
+/* Inner container for proper spacing */
+body.page-home .hero {
+    display: grid;
+    grid-template-columns: 1fr minmax(auto, 550px) minmax(auto, 520px) 1fr;
+    gap: clamp(40px, 6vw, 80px);
+    align-items: center;
+    padding-left: clamp(40px, 8vw, 80px);
+    padding-right: clamp(40px, 8vw, 80px);
+}
 
 body.page-home .hero-content {
-    flex: 1;
+    grid-column: 2;
     position: relative;
     z-index: 1;
 }
@@ -47,14 +68,14 @@ body.page-home .hero p {
     font-size: 1rem;
 }
 
+
 body.page-home .hero-images {
-    flex: 1;
+    grid-column: 3;
     display: grid;
     grid-template-columns: repeat(2, minmax(140px, 1fr));
     gap: 16px;
     position: relative;
     z-index: 1;
-    max-width: 520px;
 }
 
 body.page-home .hero-image {

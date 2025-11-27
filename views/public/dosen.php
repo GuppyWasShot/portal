@@ -33,7 +33,20 @@ include __DIR__ . '/../layouts/header_public.php';
                 <?php foreach ($dosen_list as $dosen): ?>
                 <div class="dosen-card-unique">
                     <div class="photo-base">
-                        <img src="../../<?php echo htmlspecialchars(!empty($dosen['foto_url']) ? $dosen['foto_url'] : $default_photo); ?>" alt="Foto <?php echo htmlspecialchars($dosen['nama']); ?>" class="dosen-photo">
+                        <?php 
+                        // Fix path untuk hosting - gunakan path absolute dari domain root
+                        $photo_path = !empty($dosen['foto_url']) ? $dosen['foto_url'] : $default_photo;
+                        // Pastikan path dimulai dari root jika sudah ada 'uploads/'
+                        if (strpos($photo_path, 'uploads/') === 0) {
+                            $photo_path = '../../' . $photo_path;
+                        } else if (strpos($photo_path, 'assets/') === 0) {
+                            $photo_path = '../../' . $photo_path;
+                        }
+                        ?>
+                        <img src="<?php echo htmlspecialchars($photo_path); ?>" 
+                             alt="Foto <?php echo htmlspecialchars($dosen['nama']); ?>" 
+                             class="dosen-photo"
+                             onerror="this.src='../../assets/img/fd.png'">
                     </div>
                     <div class="info-content-unique">
                         <div class="name-research-group">
