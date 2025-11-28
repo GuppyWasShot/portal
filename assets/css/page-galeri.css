@@ -1,12 +1,17 @@
 /* ===== Bagian: Halaman Galeri ===== */
 body.page-galeri .gallery-hero {
-    background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%);
+    /* background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%); */
+    background: url(/portal-tpl/assets/img/bg-hero.png);
+    background-size: cover;
+    background-position: bottom;
     padding: var(--hero-padding-top) var(--hero-padding-x) var(--hero-padding-bottom);
     text-align: center;
     position: relative;
     overflow: hidden;
     border-radius: 0;
     color: #2d1b69;
+    height: 390px;
+    padding-top: 100px;
 }
 
 body.page-galeri .gallery-hero-content {
@@ -18,7 +23,7 @@ body.page-galeri .gallery-hero-content {
 
 body.page-galeri .gallery-hero-content h1 {
     font-size: clamp(32px, 5vw, 54px);
-    color: #2d1b69;
+    color: #412358;
     margin-bottom: 12px;
     font-weight: 700;
 }
@@ -133,7 +138,7 @@ body.page-galeri .sort-select:focus {
 
 body.page-galeri .sort-select option {
     background: #fff;
-    color: #2d1b69;
+    color: #412358;
     padding: 8px;
 }
 
@@ -187,7 +192,7 @@ body.page-galeri .category-chip {
 
 body.page-galeri .category-chip:hover {
     border-color: #c3b7de;
-    color: #2d1b69;
+    color: #412358;
 }
 
 body.page-galeri .category-bubble input[type="checkbox"]:checked+.category-chip,
@@ -395,7 +400,7 @@ body.page-galeri .empty-state svg {
 
 body.page-galeri .empty-state h3 {
     font-size: 24px;
-    color: #2d1b69;
+    color: #412358;
     margin-bottom: 10px;
 }
 

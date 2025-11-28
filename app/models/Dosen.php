@@ -1,7 +1,7 @@
 <?php
 /**
- * Kelas Dosen
- * Buat ngatur semua data dosen - CRUD lengkap
+ * Class Dosen - Model buat ngatur data dosen
+ * Semua operasi CRUD buat data dosen ada disini
  * 
  * Cara pake:
  * $dosen = new Dosen();
@@ -13,8 +13,7 @@ class Dosen {
     private $db;
     
     /**
-     * Constructor - bikin object Dosen
-     * Menggunakan dependency injection untuk koneksi database
+     * Konstruktor - inisialisasi koneksi database
      */
     public function __construct($database = null) {
         if ($database === null) {
@@ -25,10 +24,10 @@ class Dosen {
     }
     
     /**
-     * Ambil semua data dosen (bisa pake filter)
+     * Ambil semua data dosen, bisa pake filter juga
      * 
-     * @param array $filters Filter opsional (status, order/urutan)
-     * @return array List dosen
+     * @param array $filters Filter opsional (status, order)
+     * @return array List data dosen
      */
     public function getAll($filters = []) {
         $where_conditions = [];
@@ -42,12 +41,12 @@ class Dosen {
             $types .= "s";
         }
         
-        // Bikin klausa WHERE
+        // Bikin WHERE clause
         $where_clause = !empty($where_conditions) 
             ? "WHERE " . implode(' AND ', $where_conditions)
             : "";
         
-        // Klausa urutan
+        // Urutan data (default: status desc, urutan asc)
         $order = isset($filters['order']) ? $filters['order'] : 'status DESC, urutan ASC, nama ASC';
         
         $query = "SELECT * FROM tbl_dosen $where_clause ORDER BY $order";
@@ -74,9 +73,9 @@ class Dosen {
     }
     
     /**
-     * Ambil data dosen berdasarkan ID
+     * Ambil data dosen by ID
      * 
-     * @param int $id ID dosen yang mau diambil
+     * @param int $id ID dosen
      * @return array|null Data dosen atau null kalo ga ketemu
      */
     public function getById($id) {
@@ -91,9 +90,9 @@ class Dosen {
     }
     
     /**
-     * Ambil jumlah dosen yang aktif (buat di dashboard)
+     * Hitung jumlah dosen aktif (buat dashboard)
      * 
-     * @return int Jumlah dosen aktif
+     * @return int Jumlah dosen yang statusnya active
      */
     public function getActiveCount() {
         $result = $this->db->query("SELECT COUNT(*) as count FROM tbl_dosen WHERE status = 'active'");
@@ -102,18 +101,18 @@ class Dosen {
     }
     
     /**
-     * Bikin data dosen baru
+     * Bikin dosen baru
      * 
-     * @param array $data Data dosen (nama, gelar, jabatan, email, foto_url, deskripsi, urutan, status) yang mau ditambahin
-     * @return int|false ID dosen baru kalo berhasil, false kalo gagal
+     * @param array $data Data dosen (nama wajib, sisanya opsional)
+     * @return int|false ID dosen baru atau false kalo gagal
      */
     public function create($data) {
-        // Validasi field yang wajib diisi
+        // Validasi: nama wajib ada
         if (empty($data['nama'])) {
             return false;
         }
         
-        // Set nilai default
+        // Set nilai default kalo ga diisi
         $nama = $data['nama'];
         $gelar = $data['gelar'] ?? null;
         $jabatan = $data['jabatan'] ?? null;
@@ -149,7 +148,7 @@ class Dosen {
      * Update data dosen
      * 
      * @param int $id ID dosen yang mau diupdate
-     * @param array $data Data baru yang mau diupdate
+     * @param array $data Data baru
      * @return bool True kalo berhasil
      */
     public function update($id, $data) {
@@ -158,7 +157,7 @@ class Dosen {
             return false;
         }
         
-        // Validasi field yang wajib diisi
+        // Nama wajib ada
         if (empty($data['nama'])) {
             return false;
         }
@@ -172,7 +171,7 @@ class Dosen {
         $status = isset($data['status']) && $data['status'] === 'inactive' ? 'inactive' : 'active';
         
         try {
-            // Cek apakah foto_url di-update
+            // Cek apakah foto mau diupdate juga
             if (isset($data['foto_url'])) {
                 $foto_url = $data['foto_url'];
                 $stmt = $this->db->prepare(
@@ -182,7 +181,7 @@ class Dosen {
                 );
                 $stmt->bind_param("ssssssisi", $nama, $gelar, $jabatan, $email, $foto_url, $deskripsi, $urutan, $status, $id);
             } else {
-                // Update tanpa mengubah foto_url
+                // Update tanpa ganti foto
                 $stmt = $this->db->prepare(
                     "UPDATE tbl_dosen 
                      SET nama = ?, gelar = ?, jabatan = ?, email = ?, deskripsi = ?, urutan = ?, status = ?

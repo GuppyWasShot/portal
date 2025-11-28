@@ -107,59 +107,36 @@ include __DIR__ . '/../layouts/header_admin.php';
             <div class="mb-6 flex flex-col md:flex-row gap-4">
                 <div class="flex-1">
                     <input type="text" id="searchInput" placeholder="Cari judul atau pembuat..." 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                           onkeyup="filterTable()">
+                           value="<?php echo htmlspecialchars($search); ?>"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
-                <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        onchange="filterTable()">
-                    <option value="">Semua Status</option>
-                    <option value="Published">Published</option>
-                    <option value="Draft">Draft</option>
-                    <option value="Hidden">Hidden</option>
+                <select id="sortSelect" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="terbaru" <?php echo $sort === 'terbaru' ? 'selected' : ''; ?>>Terbaru</option>
+                    <option value="terlama" <?php echo $sort === 'terlama' ? 'selected' : ''; ?>>Terlama</option>
+                    <option value="judul_asc" <?php echo $sort === 'judul_asc' ? 'selected' : ''; ?>>Judul A-Z</option>
+                    <option value="judul_desc" <?php echo $sort === 'judul_desc' ? 'selected' : ''; ?>>Judul Z-A</option>
+                    <option value="rating" <?php echo $sort === 'rating' ? 'selected' : ''; ?>>Rating Tertinggi</option>
                 </select>
+                <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="" <?php echo $status_filter === null ? 'selected' : ''; ?>>Semua Status</option>
+                    <option value="Published" <?php echo $status_filter === 'Published' ? 'selected' : ''; ?>>Published</option>
+                    <option value="Draft" <?php echo $status_filter === 'Draft' ? 'selected' : ''; ?>>Draft</option>
+                    <option value="Hidden" <?php echo $status_filter === 'Hidden' ? 'selected' : ''; ?>>Hidden</option>
+                </select>
+                <button type="button" onclick="applyFilters()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">
+                    Filter
+                </button>
             </div>
             
             <div class="overflow-x-auto">
                 <table class="w-full" id="karyaTable">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                <a href="?sort=judul&order=<?php echo ($sort_by == 'judul' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>&page=<?php echo $current_page; ?>" 
-                                   class="flex items-center hover:text-indigo-600 transition">
-                                    Judul
-                                    <?php if($sort_by == 'judul'): ?>
-                                        <span class="ml-1 text-indigo-600"><?php echo $sort_order == 'ASC' ? '↑' : '↓'; ?></span>
-                                    <?php endif; ?>
-                                </a>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                <a href="?sort=pembuat&order=<?php echo ($sort_by == 'pembuat' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>&page=<?php echo $current_page; ?>" 
-                                   class="flex items-center hover:text-indigo-600 transition">
-                                    Pembuat
-                                    <?php if($sort_by == 'pembuat'): ?>
-                                        <span class="ml-1 text-indigo-600"><?php echo $sort_order == 'ASC' ? '↑' : '↓'; ?></span>
-                                    <?php endif; ?>
-                                </a>
-                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Judul</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pembuat</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                <a href="?sort=avg_rating&order=<?php echo ($sort_by == 'avg_rating' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>&page=<?php echo $current_page; ?>" 
-                                   class="flex items-center hover:text-indigo-600 transition">
-                                    Rating
-                                    <?php if($sort_by == 'avg_rating'): ?>
-                                        <span class="ml-1 text-indigo-600"><?php echo $sort_order == 'ASC' ? '↑' : '↓'; ?></span>
-                                    <?php endif; ?>
-                                </a>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                <a href="?sort=status&order=<?php echo ($sort_by == 'status' && $sort_order == 'ASC') ? 'DESC' : 'ASC'; ?>&page=<?php echo $current_page; ?>" 
-                                   class="flex items-center hover:text-indigo-600 transition">
-                                    Status
-                                    <?php if($sort_by == 'status'): ?>
-                                        <span class="ml-1 text-indigo-600"><?php echo $sort_order == 'ASC' ? '↑' : '↓'; ?></span>
-                                    <?php endif; ?>
-                                </a>
-                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Aksi</th>
                         </tr>
                     </thead>
@@ -424,24 +401,32 @@ document.addEventListener('click', function(e) {
     }
 });
 
-function filterTable() {
-    // ... (Fungsi filter Anda tetap sama, tidak perlu diubah) ...
-    const searchInput = document.getElementById('searchInput').value.toLowerCase();
-    const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
-    const table = document.getElementById('karyaTable');
-    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+// Apply filters with page reset
+function applyFilters() {
+    const search = document.getElementById('searchInput').value;
+    const sort = document.getElementById('sortSelect').value;
+    const status = document.getElementById('statusFilter').value;
     
-    for (let row of rows) {
-        const judul = row.cells[0].textContent.toLowerCase();
-        const pembuat = row.cells[1].textContent.toLowerCase();
-        const status = row.cells[4].textContent.trim().toLowerCase();
-        
-        const matchSearch = judul.includes(searchInput) || pembuat.includes(searchInput);
-        const matchStatus = statusFilter === '' || status.includes(statusFilter);
-        
-        row.style.display = (matchSearch && matchStatus) ? '' : 'none';
-    }
+    // Build URL with filters, always reset to page 1
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (sort && sort !== 'terbaru') params.set('sort', sort);
+    if (status) params.set('status', status);
+    params.set('page', '1'); // Always reset to page 1 on filter change
+    
+    window.location = '?' + params.toString();
 }
+
+// Apply filters on Enter key
+document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        applyFilters();
+    }
+});
+
+// Apply filters on select change
+document.getElementById('sortSelect')?.addEventListener('change', applyFilters);
+document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
 </script>
 
 <?php include __DIR__ . '/../layouts/footer_admin.php'; ?>

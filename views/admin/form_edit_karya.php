@@ -445,7 +445,8 @@ function deleteFile(id) {
             fileElement.style.opacity = '0.4';
             
             const overlay = document.createElement('div');
-            overlay.className = 'absolute inset-0 bg-red-500 bg-opacity-20 flex items-center justify-center rounded-lg';
+            overlay.className = 'file-delete-overlay absolute inset-0 bg-red-500 bg-opacity-20 flex items-center justify-center rounded-lg';
+            overlay.setAttribute('data-overlay-for', id); // Add unique identifier
             overlay.innerHTML = `
                 <div class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2">
                     <span>Akan Dihapus</span>
@@ -473,11 +474,12 @@ function undoDeleteFile(id) {
         updateDeleteInputs();
     }
     
-    // Restore UI
+    // Restore UI - use specific selector
     const fileElement = document.querySelector(`[data-file-id="${id}"]`);
     if (fileElement) {
         fileElement.style.opacity = '1';
-        const overlay = fileElement.querySelector('.absolute');
+        // Remove overlay by its specific identifier
+        const overlay = fileElement.querySelector(`.file-delete-overlay[data-overlay-for="${id}"]`);
         if (overlay) overlay.remove();
     }
 }
@@ -492,7 +494,8 @@ function deleteLink(id) {
             linkElement.classList.add('bg-red-50');
             
             const overlay = document.createElement('div');
-            overlay.className = 'absolute inset-0 flex items-center justify-center';
+            overlay.className = 'link-delete-overlay absolute inset-0 flex items-center justify-center';
+            overlay.setAttribute('data-overlay-for', id);
             overlay.innerHTML = `
                 <div class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2">
                     <span>Akan Dihapus</span>
@@ -522,7 +525,8 @@ function undoDeleteLink(id) {
     if (linkElement) {
         linkElement.style.opacity = '1';
         linkElement.classList.remove('bg-red-50');
-        const overlay = linkElement.querySelector('.absolute');
+        // Use specific selector
+        const overlay = linkElement.querySelector(`.link-delete-overlay[data-overlay-for="${id}"]`);
         if (overlay) overlay.remove();
     }
 }

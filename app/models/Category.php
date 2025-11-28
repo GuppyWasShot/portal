@@ -1,9 +1,9 @@
 <?php
 /**
- * Kelas Category (Kategori Karya)
- * Buat ngatur kategori-kategori project mahasiswa
+ * Category Class
+ * Menangani semua operasi terkait Kategori Project
  * 
- * Cara pake:
+ * Usage:
  * $category = new Category();
  * $list = $category->getAll();
  */
@@ -13,7 +13,7 @@ class Category {
     private $db;
     
     /**
-     * Constructor - bikin object Category
+     * Constructor
      */
     public function __construct($database = null) {
         if ($database === null) {
@@ -44,10 +44,10 @@ class Category {
     }
     
     /**
-     * Ambil kategori berdasarkan ID
+     * Mendapatkan kategori berdasarkan ID
      * 
      * @param int $id ID kategori
-     * @return array|null Data kategori atau null kalo ga ada
+     * @return array|null Data kategori atau null
      */
     public function getById($id) {
         $stmt = $this->db->prepare("SELECT * FROM tbl_category WHERE id_kategori = ?");

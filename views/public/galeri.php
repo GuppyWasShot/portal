@@ -139,9 +139,12 @@ include __DIR__ . '/../layouts/header_public.php';
         <?php foreach($karya_list as $karya): 
             $kategori_arr = $karya['kategori'] ? explode(', ', $karya['kategori']) : [];
             $warna_arr = $karya['warna'] ? explode(',', $karya['warna']) : [];
+            
+            // Get first image using centralized method
+            $first_image = $karyaModel->getFirstImage($karya['id_project']);
         ?>
         <a href="detail_karya.php?id=<?php echo $karya['id_project']; ?>" class="gallery-card">
-            <div class="gallery-card-image" style="<?php echo !empty($karya['snapshot_url']) ? 'background-image: url(../../' . htmlspecialchars($karya['snapshot_url']) . ');' : ''; ?>">
+            <div class="gallery-card-image" style="<?php echo !empty($first_image) ? 'background-image: url(/portal-tpl/' . htmlspecialchars($first_image) . ');' : ''; ?>">
                 <?php if ($karya['avg_rating']): ?>
                 <div class="gallery-rating-badge">
                     <svg viewBox="0 0 20 20">

@@ -1,11 +1,11 @@
 <?php
 /**
- * Kelas Rating
- * Buat ngatur rating/penilaian karya mahasiswa
+ * Rating Class
+ * Menangani semua operasi terkait Rating
  * 
- * Cara pake:
+ * Usage:
  * $rating = new Rating();
- * $avg = $rating->getAverageForProject($id);
+ * $rating->submitRating(1, 5, $user_uuid, $ip);
  */
 require_once __DIR__ . '/Database.php';
 
@@ -13,7 +13,7 @@ class Rating {
     private $db;
     
     /**
-     * Constructor - bikin object Rating
+     * Constructor
      */
     public function __construct($database = null) {
         if ($database === null) {
@@ -145,7 +145,7 @@ class Rating {
     }
     
     /**
-     * Ambil semua rating buat project tertentu
+     * Hapus rating user (cancel rating)
      * 
      * @param int $project_id ID project
      * @param string $user_uuid UUID user
@@ -286,10 +286,10 @@ class Rating {
     }
     
     /**
-     * Hitung rata-rata rating buat project tertentu
+     * Mendapatkan rata-rata rating suatu karya
      * 
      * @param int $project_id ID project
-     * @return float Rata-rata rating (0-5)
+     * @return float|null Rata-rata rating atau null
      */
     public function getAverageRating($project_id) {
         $stmt = $this->db->prepare("

@@ -125,47 +125,71 @@ include __DIR__ . '/../layouts/header_public.php';
             <div class="left-column">
                 <!-- ===== Bagian: Galeri Utama ===== -->
                 <?php 
-                $all_snapshots = $fileGroups['snapshots'];
+                // ROMBAK: Langsung query semua images dari tbl_project_files
+                $image_query = "
+                    SELECT file_path, label, nama_file 
+                    FROM tbl_project_files 
+                    WHERE id_project = ? 
+                    AND (mime_type LIKE 'image/%' 
+                         OR nama_file LIKE '%.png' 
+                         OR nama_file LIKE '%.jpg' 
+                         OR nama_file LIKE '%.jpeg'
+                         OR nama_file LIKE '%.gif'
+                         OR nama_file LIKE '%.webp')
+                    ORDER BY id_file ASC
+                ";
                 
-                // Jika ada snapshot_url utama, tambahkan ke awal array jika belum ada
-                if (!empty($karya['snapshot_url'])) {
-                    $main_snapshot = $karya['snapshot_url'];
-                    // Cek apakah snapshot_url sudah ada di array
-                    $found = false;
-                    foreach ($all_snapshots as $snap) {
-                        if ($snap['file_path'] === $main_snapshot) {
-                            $found = true;
-                            break;
-                        }
+                $db = Database::getInstance()->getConnection();
+                $stmt = $db->prepare($image_query);
+                $stmt->bind_param("i", $id_project);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                
+                $all_images = [];
+                while ($img = $result->fetch_assoc()) {
+                    // Verify file actually exists
+                    if (file_exists(__DIR__ . '/../../' . $img['file_path'])) {
+                        $all_images[] = $img;
                     }
-                    // Jika belum ada, tambahkan di awal
-                    if (!$found) {
-                        array_unshift($all_snapshots, ['file_path' => $main_snapshot, 'label' => 'Main Image']);
-                    }
-                } else {
-                    $main_snapshot = !empty($all_snapshots) ? $all_snapshots[0]['file_path'] : '';
                 }
+                $stmt->close();
+                
+                // Main snapshot = first image yang exists
+                $main_snapshot = !empty($all_images) ? $all_images[0]['file_path'] : null;
                 ?>
                 
                 <?php if (!empty($main_snapshot)): ?>
                 <div class="main-image-container">
                     <img id="mainGalleryImage" 
-                         src="../../<?php echo htmlspecialchars($main_snapshot); ?>" 
-                         alt="<?php echo htmlspecialchars($karya['judul']); ?>">
+                         src="/portal-tpl/<?php echo htmlspecialchars($main_snapshot); ?>" 
+                         alt="<?php echo htmlspecialchars($karya['judul']); ?>"
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'padding: 60px 20px; text-align: center; background: #f5f5f5; border-radius: 12px; color: #999;\'><p>📷 Foto tidak dapat dimuat</p></div>';">
                 </div>
                 
                 <!-- ===== Bagian: Thumbnail Galeri ===== -->
-                <?php if (count($all_snapshots) > 1): ?>
+                <?php if (count($all_images) > 1): ?>
                 <div class="gallery-grid">
-                    <?php foreach ($all_snapshots as $idx => $snapshot): ?>
+                    <?php foreach ($all_images as $idx => $image): ?>
                     <div class="gallery-item <?php echo $idx === 0 ? 'active' : ''; ?>" 
-                         onclick="changeMainImage('../../<?php echo htmlspecialchars($snapshot['file_path']); ?>', this)">
-                        <img src="../../<?php echo htmlspecialchars($snapshot['file_path']); ?>" 
-                             alt="Thumbnail <?php echo $idx + 1; ?>">
+                         onclick="changeMainImage('/portal-tpl/<?php echo htmlspecialchars($image['file_path']); ?>', this)">
+                        <img src="/portal-tpl/<?php echo htmlspecialchars($image['file_path']); ?>" 
+                             alt="<?php echo htmlspecialchars($image['label'] ?? 'Thumbnail ' . ($idx + 1)); ?>"
+                             onerror="this.parentElement.style.display='none';">
                     </div>
                     <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
+                <?php else: ?>
+                <!-- Placeholder kalau ga ada foto -->
+                <div style="padding: 80px 20px; text-align: center; background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%); border-radius: 16px; margin-bottom: 30px;">
+                    <svg style="width: 80px; height: 80px; margin: 0 auto 20px; opacity: 0.3;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    <p style="color: #999; font-size: 15px; margin: 0;">Tidak ada foto untuk karya ini</p>
+                    <p style="color: #ccc; font-size: 12px; margin: 5px 0 0 0;">Upload foto melalui admin panel</p>
+                </div>
                 <?php endif; ?>
 
                 <h1 class="project-title"><?php echo htmlspecialchars($karya['judul']); ?></h1>
@@ -208,7 +232,7 @@ include __DIR__ . '/../layouts/header_public.php';
                 <h2 class="section-title">File Pendukung</h2>
                 <div class="action-buttons">
                     <?php foreach ($fileGroups['documents'] as $doc): ?>
-                    <a href="../../<?php echo htmlspecialchars($doc['file_path']); ?>" 
+                    <a href="/portal-tpl/<?php echo htmlspecialchars($doc['file_path']); ?>" 
                        target="_blank" 
                        download
                        class="btn btn-outline">

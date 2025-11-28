@@ -1,11 +1,11 @@
 <?php
 /**
- * Kelas About (Tentang)
- * Buat ngatur data halaman About/Tentang
+ * About Class
+ * Menangani semua operasi terkait About Sections (Halaman Tentang)
  * 
- * Cara pake:
+ * Usage:
  * $about = new About();
- * $data = $about->get();
+ * $sections = $about->getAll();
  */
 require_once __DIR__ . '/Database.php';
 
@@ -13,7 +13,7 @@ class About {
     private $db;
     
     /**
-     * Constructor - bikin object About
+     * Constructor
      */
     public function __construct($database = null) {
         if ($database === null) {
@@ -82,12 +82,14 @@ class About {
     }
     
     /**
-     * Ambil data About (selalu ID = 1, cuma ada satu record)
+     * Mendapatkan about section berdasarkan ID
      * 
-     * @return array|null Data about atau null kalo belum ada
+     * @param int $id ID section
+     * @return array|null Data section atau null
      */
-    public function get() {
-        $stmt = $this->db->prepare("SELECT * FROM tbl_about_sections WHERE id_section = 1");
+    public function getById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM tbl_about_sections WHERE id_section = ?");
+        $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
         $section = $result->fetch_assoc();
@@ -231,13 +233,16 @@ class About {
     }
     
     /**
-     * Update data About
+     * Update about section
      * 
-     * @param array $data Data yang mau diupdate (judul, konten)
-     * @return bool True kalo berhasil
+     * @param int $id ID section
+     * @param array $data Data yang akan diupdate
+     * @return bool True jika berhasil
      */
-    public function update($data) {
-        $id = 1; // Always update the single About record with ID 1
+    public function update($id, $data) {
+        if ($id <= 0) {
+            return false;
+        }
         
         // Validasi required fields
         if (empty($data['judul']) || empty($data['konten'])) {

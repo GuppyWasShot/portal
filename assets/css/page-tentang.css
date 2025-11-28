@@ -1,12 +1,17 @@
 /* ===== Bagian: Halaman Tentang ===== */
 body.page-tentang .hero {
-    background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%);
+    /* background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%); */
+    background: url(/portal-tpl/assets/img/bg-hero.png);
+    background-size: cover;
+    background-position: bottom;
     padding: var(--hero-padding-top) var(--hero-padding-x) var(--hero-padding-bottom);
     text-align: center;
     position: relative;
     overflow: hidden;
     border-radius: 0;
-    color: #2d1b69;
+    color: #412358;
+    height: 500px;
+    padding-top: 100px;
 }
 
 body.page-tentang .hero-content {
@@ -18,7 +23,7 @@ body.page-tentang .hero-content {
 
 body.page-tentang .hero h1 {
     font-size: clamp(28px, 5vw, 48px);
-    color: #2d1b69;
+    color: #412358;
     margin-bottom: 20px;
     font-weight: 700;
 }
@@ -54,7 +59,7 @@ body.page-tentang .btn-outline {
 }
 
 body.page-tentang .btn-outline:hover {
-    background: #2d1b69;
+    background: #412358;
     color: #ffffff;
 }
 
@@ -85,7 +90,7 @@ body.page-tentang .content {
 
 body.page-tentang .content h2 {
     font-size: 36px;
-    color: #2d1b69;
+    color: #412358;
     margin-bottom: 30px;
 }
 
@@ -95,7 +100,7 @@ body.page-tentang .content h2 .highlight {
 
 body.page-tentang .content h3 {
     font-size: 28px;
-    color: #2d1b69;
+    color: #412358;
     margin-top: 50px;
     margin-bottom: 20px;
 }
@@ -161,7 +166,7 @@ body.page-tentang .info-box {
 }
 
 body.page-tentang .info-box h4 {
-    color: #2d1b69;
+    color: #412358;
     font-size: 20px;
     margin-bottom: 10px;
 }

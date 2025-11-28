@@ -10,13 +10,18 @@ body.page-home {
 
 /* ===== Hero ===== */
 body.page-home .hero {
-    background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%);
+    /* background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%); */
+    background-image: url(/portal-tpl/assets/img/bg-hero.png);
+    background-size: cover;
+    background-position: bottom;
     padding: clamp(120px, 18vh, 160px) 0 clamp(80px, 12vh, 110px);
     position: relative;
     overflow: hidden;
-    color: #2d1b69;
+    color: #412358;
     border-radius: 0;
     min-height: 480px;
+    height: 950px;
+    padding-top: 100px;
 }
 
 body.page-home .hero::before {
@@ -53,7 +58,7 @@ body.page-home .hero-content {
 
 body.page-home .hero h1 {
     font-size: clamp(2.5rem, 5vw, 3.6rem);
-    color: #2d1b69;
+    color: #412358;
     margin-bottom: 12px;
     line-height: 1.2;
 }

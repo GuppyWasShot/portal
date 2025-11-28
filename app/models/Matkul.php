@@ -1,7 +1,7 @@
 <?php
 /**
- * Kelas Matkul (Mata Kuliah)
- * Buat ngatur data mata kuliah TPL
+ * Class Matkul - Model buat ngatur data mata kuliah
+ * Semua operasi CRUD buat matakuliah ada disini
  * 
  * Cara pake:
  * $matkul = new Matkul();
@@ -13,7 +13,7 @@ class Matkul {
     private $db;
     
     /**
-     * Konstruktor - bikin objek Matkul
+     * Konstruktor - inisialisasi koneksi database
      */
     public function __construct($database = null) {
         if ($database === null) {
@@ -24,10 +24,10 @@ class Matkul {
     }
     
     /**
-     * Ambil semua mata kuliah (bisa pake filter)
+     * Ambil semua data matkul, bisa pake filter juga
      * 
      * @param array $filters Filter opsional (status, semester, order)
-     * @return array List matkul
+     * @return array List data matakuliah
      */
     public function getAll($filters = []) {
         $where_conditions = [];
@@ -44,17 +44,17 @@ class Matkul {
         // Filter berdasarkan semester
         if (isset($filters['semester'])) {
             $where_conditions[] = "semester = ?";
-            $params[] = intval($filters['semester']);
+            $params[] = $filters['semester'];
             $types .= "i";
         }
         
-        // Buat klausa WHERE
+        // Bikin WHERE clause
         $where_clause = !empty($where_conditions) 
             ? "WHERE " . implode(' AND ', $where_conditions)
             : "";
         
-        // Klausa ORDER BY
-        $order = isset($filters['order']) ? $filters['order'] : 'semester ASC, urutan ASC, nama ASC';
+        // Urutan data (default: semester asc, urutan asc)
+        $order = isset($filters['order']) ? $filters['order'] : 'semester ASC, COALESCE(NULLIF(urutan, 0), 9999) ASC, nama ASC';
         
         $query = "SELECT * FROM tbl_matkul $where_clause ORDER BY $order";
         
@@ -80,32 +80,9 @@ class Matkul {
     }
     
     /**
-     * Ambil mata kuliah yang dikelompokkan berdasarkan semester
+     * Ambil data matkul by ID
      * 
-     * @return array Array dengan key semester, value list matkul
-     */
-    public function getAllGroupedBySemester() {
-        $all_matkul = $this->getAll();
-        
-        $grouped = [];
-        foreach ($all_matkul as $matkul) {
-            $semester = $matkul['semester'];
-            if (!isset($grouped[$semester])) {
-                $grouped[$semester] = [];
-            }
-            $grouped[$semester][] = $matkul;
-        }
-        
-        // Urutkan berdasarkan semester
-        ksort($grouped);
-        
-        return $grouped;
-    }
-    
-    /**
-     * Ambil matkul berdasarkan ID
-     * 
-     * @param int $id ID matkul
+     * @param int $id ID matakuliah
      * @return array|null Data matkul atau null kalo ga ketemu
      */
     public function getById($id) {
@@ -120,22 +97,12 @@ class Matkul {
     }
     
     /**
-     * Ambil semua mata kuliah dalam semester tertentu
+     * Hitung jumlah matkul aktif (buat dashboard)
      * 
-     * @param int $semester Semester (1-8)
-     * @return array List matkul
+     * @return int Jumlah matkul yang statusnya active
      */
-    public function getBySemester($semester) {
-        return $this->getAll(['semester' => $semester]);
-    }
-    
-    /**
-     * Hitung total jumlah mata kuliah
-     * 
-     * @return int Total mata kuliah
-     */
-    public function getTotalCount() {
-        $result = $this->db->query("SELECT COUNT(*) as count FROM tbl_matkul");
+    public function getActiveCount() {
+        $result = $this->db->query("SELECT COUNT(*) as count FROM tbl_matkul WHERE status = 'active'");
         $row = $result->fetch_assoc();
         return (int)$row['count'];
     }
@@ -143,19 +110,20 @@ class Matkul {
     /**
      * Bikin matkul baru
      * 
-     * @param array $data Data matkul (kode, nama, semester, sks, kategori, deskripsi, urutan, status)
-     * @return int|false ID matkul baru kalo berhasil
+     * @param array $data Data matkul (kode, nama, semester wajib; sisanya opsional)
+     * @return int|false ID matkul baru atau false kalo gagal
      */
     public function create($data) {
-        // Validasi field wajib
-        if (empty($data['kode']) || empty($data['nama']) || !isset($data['semester'])) {
+        // Validasi: kode, nama, semester wajib ada
+        if (empty($data['kode']) || empty($data['nama']) || empty($data['semester'])) {
             return false;
         }
         
+        // Set nilai default kalo ga diisi
         $kode = $data['kode'];
         $nama = $data['nama'];
-        $semester = intval($data['semester']);
         $sks = isset($data['sks']) ? intval($data['sks']) : 0;
+        $semester = intval($data['semester']);
         $kategori = $data['kategori'] ?? null;
         $deskripsi = $data['deskripsi'] ?? null;
         $urutan = isset($data['urutan']) ? intval($data['urutan']) : 0;
@@ -184,26 +152,27 @@ class Matkul {
     }
     
     /**
-     * Update mata kuliah
+     * Update data matkul
      * 
-     * @param int $id ID matkul
-     * @param array $data Data yang akan diupdate
-     * @return bool True jika berhasil
+     * @param int $id ID matkul yang mau diupdate
+     * @param array $data Data baru
+     * @return bool True kalo berhasil
      */
     public function update($id, $data) {
+        // Validasi ID
         if ($id <= 0) {
             return false;
         }
         
-        // Validasi field wajib
-        if (empty($data['kode']) || empty($data['nama']) || !isset($data['semester'])) {
+        // Kode, nama, semester wajib ada
+        if (empty($data['kode']) || empty($data['nama']) || empty($data['semester'])) {
             return false;
         }
         
         $kode = $data['kode'];
         $nama = $data['nama'];
-        $semester = intval($data['semester']);
         $sks = isset($data['sks']) ? intval($data['sks']) : 0;
+        $semester = intval($data['semester']);
         $kategori = $data['kategori'] ?? null;
         $deskripsi = $data['deskripsi'] ?? null;
         $urutan = isset($data['urutan']) ? intval($data['urutan']) : 0;
@@ -216,6 +185,7 @@ class Matkul {
                  WHERE id_matkul = ?"
             );
             $stmt->bind_param("ssiissisi", $kode, $nama, $sks, $semester, $kategori, $deskripsi, $urutan, $status, $id);
+            
             $success = $stmt->execute();
             $affected_rows = $stmt->affected_rows;
             $stmt->close();
@@ -228,10 +198,10 @@ class Matkul {
     }
     
     /**
-     * Hapus mata kuliah
+     * Hapus data matkul
      * 
-     * @param int $id ID matkul
-     * @return bool True jika berhasil
+     * @param int $id ID matkul yang mau dihapus
+     * @return bool True kalo berhasil
      */
     public function delete($id) {
         if ($id <= 0) {
@@ -250,5 +220,15 @@ class Matkul {
             error_log("Matkul::delete() error: " . $e->getMessage());
             return false;
         }
+    }
+    
+    /**
+     * Ambil matkul berdasarkan semester tertentu
+     * 
+     * @param int $semester Semester (1-8)
+     * @return array List matkul di semester itu
+     */
+    public function getBySemester($semester) {
+        return $this->getAll(['semester' => $semester, 'status' => 'active']);
     }
 }

@@ -1,9 +1,9 @@
 <?php
 /**
- * Kelas Database - Pake Singleton Pattern
- * Buat ngatur koneksi ke database, satu koneksi aja biar efisien
+ * Database Class
+ * Mengelola koneksi database menggunakan Singleton Pattern
  * 
- * Cara pake:
+ * Usage:
  * $db = Database::getInstance()->getConnection();
  */
 class Database {
@@ -22,7 +22,7 @@ class Database {
     // private $db_name = 'if0_40385611_portal_tpl';
     
     /**
-     * Constructor - private biar ga bisa di-new dari luar
+     * Constructor private untuk mencegah instantiasi langsung
      */
     private function __construct() {
         $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->db_name);
@@ -31,7 +31,7 @@ class Database {
             die("Koneksi database gagal: " . $this->conn->connect_error);
         }
         
-        // Set charset biar support karakter Indonesia
+        // Set charset
         $this->conn->set_charset("utf8mb4");
         
         // Set timezone MySQL ke Asia/Jakarta (GMT+7)
@@ -42,8 +42,9 @@ class Database {
     }
     
     /**
-     * Dapetin instance Database - ini pake Singleton pattern
-     * Jadi selalu return object yang sama
+     * Mendapatkan instance Database (Singleton Pattern)
+     * 
+     * @return Database
      */
     public static function getInstance() {
         if (self::$instance === null) {
@@ -53,14 +54,16 @@ class Database {
     }
     
     /**
-     * Ambil koneksi database buat dipake di model-model
+     * Mendapatkan koneksi mysqli
+     * 
+     * @return mysqli
      */
     public function getConnection() {
         return $this->conn;
     }
     
     /**
-     * Tutup koneksi database
+     * Menutup koneksi database
      */
     public function close() {
         if ($this->conn) {

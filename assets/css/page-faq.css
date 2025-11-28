@@ -1,12 +1,17 @@
 /* ===== Bagian: Halaman FAQ ===== */
 body.page-faq .faq-hero {
-    background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%);
+    /* background: linear-gradient(135deg, #f3e9ff 0%, #e1cef9 55%, #d3b1f7 100%); */
+    background: url(/portal-tpl/assets/img/bg-hero.png);
+    background-size: cover;
+    background-position: bottom;
     padding: var(--hero-padding-top) var(--hero-padding-x) var(--hero-padding-bottom);
     text-align: center;
     position: relative;
     overflow: hidden;
     border-radius: 0;
-    color: #2d1b69;
+    color: #412358;
+    height: 500px;
+    padding-top: 100px;
 }
 
 body.page-faq .faq-hero-content {
@@ -18,7 +23,7 @@ body.page-faq .faq-hero-content {
 
 body.page-faq .faq-hero h1 {
     font-size: clamp(28px, 5vw, 48px);
-    color: #2d1b69;
+    color: #412358;
     margin-bottom: 20px;
     font-weight: 700;
 }
@@ -43,7 +48,7 @@ body.page-faq .faq-wrapper {
 
 body.page-faq .faq-wrapper h2 {
     font-size: 48px;
-    color: #2d1b69;
+    color: #412358;
     margin-bottom: 50px;
     text-align: center;
 }

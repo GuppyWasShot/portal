@@ -1,9 +1,9 @@
 <?php
 /**
- * Kelas Karya (Project Mahasiswa)
- * Buat ngatur semua karya/project - ini model paling kompleks!
+ * Karya Class
+ * Menangani semua operasi terkait Karya/Project
  * 
- * Cara pake:
+ * Usage:
  * $karya = new Karya();
  * $detail = $karya->getKaryaById(1);
  */
@@ -13,8 +13,8 @@ class Karya {
     private $db;
     
     /**
-     * Constructor - bikin object Karya
-     * Pake dependency injection buat koneksi database
+     * Constructor
+     * Menggunakan dependency injection untuk database connection
      */
     public function __construct($database = null) {
         if ($database === null) {
@@ -25,10 +25,10 @@ class Karya {
     }
     
     /**
-     * Ambil detail karya berdasarkan ID (buat halaman detail)
+     * Mendapatkan detail karya berdasarkan ID
      * 
      * @param int $id ID project
-     * @return array|null Data karya atau null kalo ga ada
+     * @return array|null Data karya atau null jika tidak ditemukan
      */
     public function getKaryaById($id) {
         $stmt = $this->db->prepare("
@@ -55,10 +55,10 @@ class Karya {
     }
     
     /**
-     * Ambil semua link dari karya tertentu
+     * Mendapatkan semua link dari suatu karya
      * 
      * @param int $project_id ID project
-     * @return array List link (GitHub, demo, dll)
+     * @return array Array of links
      */
     public function getLinks($project_id) {
         $stmt = $this->db->prepare("
@@ -81,10 +81,10 @@ class Karya {
     }
     
     /**
-     * Ambil semua file dari karya (snapshot + dokumen)
+     * Mendapatkan semua file dari suatu karya
      * 
      * @param int $project_id ID project
-     * @return array List file
+     * @return array Array of files
      */
     public function getFiles($project_id) {
         $stmt = $this->db->prepare("
@@ -107,9 +107,9 @@ class Karya {
     }
     
     /**
-     * Pisahin file jadi 2 kategori: snapshot sama dokumen
+     * Memisahkan files menjadi snapshots dan documents
      * 
-     * @param array $files List file mentah
+     * @param array $files Array of files
      * @return array Array dengan key 'snapshots' dan 'documents'
      */
     public function separateFiles($files) {
@@ -128,22 +128,22 @@ class Karya {
     }
     
     /**
-     * Ambil semua karya dengan filter (buat halaman galeri publik)
+     * Mendapatkan semua karya dengan filter (untuk galeri)
      * 
-     * @param array $filters Filter: search, sort, kategori
-     * @return array List karya yang dipublish
+     * @param array $filters Array berisi: search, sort, kategori
+     * @return array Array of karya
      */
     public function getAllKarya($filters = []) {
         $search = isset($filters['search']) ? trim($filters['search']) : '';
         $sort = isset($filters['sort']) ? $filters['sort'] : 'terbaru';
         $kategori_filter = isset($filters['kategori']) ? $filters['kategori'] : [];
         
-        // Bikin kondisi WHERE buat query
+        // Build WHERE conditions
         $where_conditions = ["p.status = 'Published'"];
         $params = [];
         $types = "";
         
-        // Filter buat search/pencarian
+        // Filter pencarian
         if (!empty($search)) {
             $where_conditions[] = "(p.judul LIKE ? OR p.pembuat LIKE ? OR p.deskripsi LIKE ?)";
             $search_param = "%$search%";
@@ -153,7 +153,7 @@ class Karya {
             $types .= "sss";
         }
         
-        // Filter berdasarkan kategori
+        // Filter kategori
         if (!empty($kategori_filter) && is_array($kategori_filter)) {
             $placeholders = implode(',', array_fill(0, count($kategori_filter), '?'));
             $where_conditions[] = "pc.id_kategori IN ($placeholders)";
@@ -163,7 +163,7 @@ class Karya {
             }
         }
         
-        // Urutan sorting
+        // Order by
         $order_by = "p.id_project DESC"; // default: terbaru
         switch ($sort) {
             case 'judul_asc':
@@ -217,19 +217,19 @@ class Karya {
     }
     
     /**
-     * Ambil karya dengan filter + pagination (buat  galeri yang banyak)
+     * Mendapatkan semua karya dengan filter dan pagination
      * 
-     * @param array $filters Filter: search, sort, kategori
-     * @param int $page Halaman sekarang (mulai dari 1)
+     * @param array $filters Array berisi: search, sort, kategori
+     * @param int $page Halaman saat ini (mulai dari 1)
      * @param int $per_page Jumlah item per halaman
-     * @return array Array: data, total, total_pages, current_page
+     * @return array Array dengan keys: data, total, total_pages, current_page
      */
     public function getAllKaryaPaginated($filters = [], $page = 1, $per_page = 12) {
         $search = isset($filters['search']) ? trim($filters['search']) : '';
         $sort = isset($filters['sort']) ? $filters['sort'] : 'terbaru';
         $kategori_filter = isset($filters['kategori']) ? $filters['kategori'] : [];
         
-        // Bikin kondisi WHERE
+        // Build WHERE conditions
         $where_conditions = ["p.status = 'Published'"];
         $params = [];
         $types = "";
@@ -244,11 +244,11 @@ class Karya {
             $types .= "sss";
         }
         
-        // Filter kategori - project harus punya SEMUA kategori yang dipilih (logika AND)
+        // Filter kategori - project must have ALL selected categories (AND logic)
         if (!empty($kategori_filter) && is_array($kategori_filter)) {
             $count_needed = count($kategori_filter);
             $placeholders = implode(',', array_fill(0, $count_needed, '?'));
-            // Cek project punya semua kategori dengan hitung jumlah match
+            // Check that project has ALL selected categories by counting matches
             $where_conditions[] = "(
                 SELECT COUNT(DISTINCT pc_filter.id_kategori) 
                 FROM tbl_project_category pc_filter 
@@ -261,7 +261,7 @@ class Karya {
             }
         }
         
-        // Urutan sorting
+        // Order by
         $order_by = "p.id_project DESC"; // default: terbaru
         switch ($sort) {
             case 'judul_asc':
@@ -280,7 +280,7 @@ class Karya {
         
         $where_clause = implode(' AND ', $where_conditions);
         
-        // Query buat hitung total data
+        // Query untuk count total
         $count_query = "SELECT COUNT(DISTINCT p.id_project) as total
                 FROM tbl_project p
                 WHERE $where_clause";
@@ -297,7 +297,7 @@ class Karya {
             $total = $count_result->fetch_assoc()['total'];
         }
         
-        // Query buat ambil data dengan pagination
+        // Query untuk data dengan pagination
         $offset = ($page - 1) * $per_page;
         $query = "SELECT p.*, 
                 GROUP_CONCAT(DISTINCT c.nama_kategori ORDER BY c.nama_kategori SEPARATOR ', ') as kategori,
@@ -340,13 +340,13 @@ class Karya {
     }
     
     /**
-     * Tambah karya baru (khusus admin)
+     * Tambah karya baru (untuk admin)
      * 
-     * @param array $data Data lengkap: judul, deskripsi, pembuat, tanggal_selesai, dll
-     * @return int|false ID karya baru kalo berhasil
+     * @param array $data Data karya lengkap (judul, deskripsi, pembuat, tanggal_selesai, link_external, snapshot_url, status, categories)
+     * @return int|false ID karya baru atau false jika gagal
      */
     public function tambahKarya($data) {
-        // Validasi field wajib
+        // Validasi required fields
         if (empty($data['judul'])) {
             return false;
         }
@@ -365,7 +365,7 @@ class Karya {
         }
         
         try {
-            // Insert data project
+            // Insert project
             $stmt = $this->db->prepare(
                 "INSERT INTO tbl_project (judul, deskripsi, pembuat, tanggal_selesai, link_external, snapshot_url, status) 
                  VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -381,7 +381,7 @@ class Karya {
             $project_id = $stmt->insert_id;
             $stmt->close();
             
-            // Insert kategori kalo ada
+            // Insert categories if provided
             if (!empty($data['categories']) && is_array($data['categories'])) {
                 $this->updateCategories($project_id, $data['categories']);
             }
@@ -395,18 +395,18 @@ class Karya {
     }
     
     /**
-     * Update karya (khusus admin)
+     * Update karya (untuk admin)
      * 
-     * @param int $id ID karya yang mau diupdate
-     * @param array $data Data baru
-     * @return bool True kalo berhasil
+     * @param int $id ID karya
+     * @param array $data Data yang akan diupdate
+     * @return bool True jika berhasil
      */
     public function updateKarya($id, $data) {
         if ($id <= 0) {
             return false;
         }
         
-        // Validasi field wajib
+        // Validasi required fields
         if (empty($data['judul'])) {
             return false;
         }
@@ -424,7 +424,7 @@ class Karya {
         }
         
         try {
-            // Cek apakah snapshot_url mau diupdate juga
+            // Cek apakah snapshot_url diupdate
             if (isset($data['snapshot_url'])) {
                 $snapshot_url = $data['snapshot_url'];
                 $stmt = $this->db->prepare(
@@ -434,7 +434,7 @@ class Karya {
                 );
                 $stmt->bind_param("sssssssi", $judul, $deskripsi, $pembuat, $tanggal_selesai, $link_external, $snapshot_url, $status, $id);
             } else {
-                // Update tanpa ubah snapshot_url
+                // Update tanpa mengubah snapshot_url
                 $stmt = $this->db->prepare(
                     "UPDATE tbl_project 
                      SET judul = ?, deskripsi = ?, pembuat = ?, tanggal_selesai = ?, link_external = ?, status = ?
@@ -447,7 +447,7 @@ class Karya {
             $affected_rows = $stmt->affected_rows;
             $stmt->close();
             
-            // Update kategori kalo ada
+            // Update categories if provided
             if (isset($data['categories']) && is_array($data['categories'])) {
                 $this->updateCategories($id, $data['categories']);
             }
@@ -461,12 +461,12 @@ class Karya {
     }
     
     /**
-     * Hapus karya (khusus admin)
-     * Note: Semua data relasi (kategori, file, link, rating) otomatis kehapus
-     * karena pake ON DELETE CASCADE di database
+     * Hapus karya (untuk admin)
+     * Note: Relasi di tbl_project_category, tbl_project_files, tbl_project_links, tbl_rating 
+     * akan otomatis terhapus karena ON DELETE CASCADE di database
      * 
      * @param int $id ID karya
-     * @return bool True kalo berhasil
+     * @return bool True jika berhasil
      */
     public function hapusKarya($id) {
         if ($id <= 0) {
@@ -488,15 +488,15 @@ class Karya {
     }
     
     /**
-     * Ambil semua project buat admin dengan filter, sort, dan pagination
+     * Get all projects for admin with filters, sorting, and pagination
      * 
-     * @param array $filters Filter opsional:
-     *   - 'search': Cari di judul, pembuat, deskripsi
-     *   - 'status': Filter berdasarkan status
-     *   - 'sort': Urutan (terbaru, terlama, judul_asc, judul_desc, rating)
-     *   - 'page': Halaman sekarang (default: 1)
-     *   - 'per_page': Item per halaman (default: 15)
-     * @return array Data: 'data', 'total', 'page', 'per_page', 'total_pages'
+     * @param array $filters Optional filters:
+     *                      - 'search': Search in title, creator, description
+     *                      - 'status': Filter by status
+     *                      - 'sort': Sort order (terbaru, terlama, judul_asc, judul_desc, rating)
+     *                      - 'page': Current page number (default: 1)
+     *                      - 'per_page': Items per page (default: 15)
+     * @return array Array with 'data', 'total', 'page', 'per_page', 'total_pages'
      */
     public function getAllForAdmin($filters = []) {
         $search = isset($filters['search']) ? trim($filters['search']) : '';
@@ -505,7 +505,7 @@ class Karya {
         $page = isset($filters['page']) ? max(1, intval($filters['page'])) : 1;
         $per_page = isset($filters['per_page']) ? max(1, intval($filters['per_page'])) : 15;
         
-        // Bikin kondisi WHERE
+        // Build WHERE conditions
         $where_conditions = [];
         $params = [];
         $types = "";
@@ -527,7 +527,7 @@ class Karya {
         
         $where_clause = !empty($where_conditions) ? "WHERE " . implode(' AND ', $where_conditions) : "";
         
-        // Tentukan urutan sort
+        // Determine sort order
         $order_by = match($sort) {
             'judul_asc' => "p.judul ASC",
             'judul_desc' => "p.judul DESC",
@@ -536,7 +536,7 @@ class Karya {
             default => "p.id_project DESC" // terbaru
         };
         
-        // Hitung total record
+        // Count total records
         $count_query = "SELECT COUNT(DISTINCT p.id_project) as total
                        FROM tbl_project p
                        LEFT JOIN tbl_project_category pc ON p.id_project = pc.id_project
@@ -556,11 +556,11 @@ class Karya {
             $total = $result->fetch_assoc()['total'];
         }
         
-        // Hitung pagination
+        // Calculate pagination
         $total_pages = ceil($total / $per_page);
         $offset = ($page - 1) * $per_page;
         
-        // Ambil data dengan pagination
+        // Get paginated data
         $query = "SELECT p.*, 
                  GROUP_CONCAT(DISTINCT c.nama_kategori ORDER BY c.nama_kategori SEPARATOR ', ') as kategori,
                  GROUP_CONCAT(DISTINCT c.warna_hex ORDER BY c.nama_kategori SEPARATOR ',') as warna,
@@ -608,18 +608,18 @@ class Karya {
     }
     
     /**
-     * Update status karya aja (Draft/Published/Hidden)
+     * Update status karya
      * 
      * @param int $id ID project
      * @param string $status Status baru (Draft, Published, Hidden)
-     * @return bool True kalo berhasil
+     * @return bool True jika berhasil
      */
     public function updateStatus($id, $status) {
         if ($id <= 0) {
             return false;
         }
         
-        // Validasi status harus salah satu dari 3 pilihan
+        // Validasi status
         if (!in_array($status, ['Draft', 'Published', 'Hidden'])) {
             return false;
         }
@@ -639,10 +639,10 @@ class Karya {
     }
     
     /**
-     * Hapus file dari project (snapshot/dokumen)
+     * Hapus file dari project
      * 
-     * @param int $file_id ID file yang mau dihapus
-     * @return bool True kalo berhasil
+     * @param int $file_id ID file
+     * @return bool True jika berhasil
      */
     public function deleteFile($file_id) {
         if ($file_id <= 0) {
@@ -664,10 +664,10 @@ class Karya {
     }
     
     /**
-     * Hapus link dari project (GitHub, demo, dll)
+     * Hapus link dari project
      * 
-     * @param int $link_id ID link yang mau dihapus
-     * @return bool True kalo berhasil
+     * @param int $link_id ID link
+     * @return bool True jika berhasil
      */
     public function deleteLink($link_id) {
         if ($link_id <= 0) {
@@ -689,11 +689,11 @@ class Karya {
     }
     
     /**
-     * Tambah file baru ke project
+     * Tambah file ke project
      * 
-     * @param int $project_id ID project tujuan
-     * @param array $file_data Data file: label, nama_file, file_path, file_size, mime_type
-     * @return int|false ID file baru kalo berhasil
+     * @param int $project_id ID project
+     * @param array $file_data Data file (label, nama_file, file_path, file_size, mime_type)
+     * @return int|false ID file baru atau false
      */
     public function addFile($project_id, $file_data) {
         if ($project_id <= 0 || empty($file_data['file_path'])) {
@@ -729,11 +729,11 @@ class Karya {
     }
     
     /**
-     * Tambah link baru ke project
+     * Tambah link ke project
      * 
-     * @param int $project_id ID project tujuan
-     * @param array $link_data Data link: label, url, is_primary
-     * @return int|false ID link baru kalo berhasil
+     * @param int $project_id ID project
+     * @param array $link_data Data link (label, url, is_primary)
+     * @return int|false ID link baru atau false
      */
     public function addLink($project_id, $link_data) {
         if ($project_id <= 0 || empty($link_data['url'])) {
@@ -767,11 +767,11 @@ class Karya {
     }
     
     /**
-     * Update kategori project (hapus semua lama, insert baru)
+     * Update kategori project (hapus semua yang lama, insert yang baru)
      * 
      * @param int $project_id ID project
-     * @param array $category_ids List ID kategori
-     * @return bool True kalo berhasil
+     * @param array $category_ids Array of category IDs
+     * @return bool True jika berhasil
      */
     public function updateCategories($project_id, $category_ids) {
         if ($project_id <= 0) {
@@ -779,13 +779,13 @@ class Karya {
         }
         
         try {
-            // Hapus semua kategori yang lama dulu
+            // Hapus semua kategori lama
             $stmt = $this->db->prepare("DELETE FROM tbl_project_category WHERE id_project = ?");
             $stmt->bind_param("i", $project_id);
             $stmt->execute();
             $stmt->close();
             
-            // Insert kategori yang baru
+            // Insert kategori baru
             if (!empty($category_ids) && is_array($category_ids)) {
                 $stmt = $this->db->prepare(
                     "INSERT INTO tbl_project_category (id_project, id_kategori) VALUES (?, ?)"
@@ -806,6 +806,65 @@ class Karya {
         } catch (Exception $e) {
             error_log("Karya::updateCategories() error: " . $e->getMessage());
             return false;
+        }
+    }
+    
+    /**
+     * Get first image/snapshot dari project
+     * Centralized method untuk consistent thumbnail handling
+     * 
+     * @param int $project_id ID project
+     * @param bool $verify_exists Check apakah file fisik ada (default: true)
+     * @return string|null Path ke image pertama atau null
+     */
+    public function getFirstImage($project_id, $verify_exists = true) {
+        if ($project_id <= 0) {
+            return null;
+        }
+        
+        try {
+            $stmt = $this->db->prepare("
+                SELECT file_path 
+                FROM tbl_project_files 
+                WHERE id_project = ? 
+                AND (mime_type LIKE 'image/%' 
+                     OR nama_file LIKE '%.png' 
+                     OR nama_file LIKE '%.jpg' 
+                     OR nama_file LIKE '%.jpeg'
+                     OR nama_file LIKE '%.gif'
+                     OR nama_file LIKE '%.webp')
+                ORDER BY id_file ASC 
+                LIMIT 1
+            ");
+            
+            $stmt->bind_param("i", $project_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows === 0) {
+                $stmt->close();
+                return null;
+            }
+            
+            $row = $result->fetch_assoc();
+            $stmt->close();
+            
+            $file_path = $row['file_path'];
+            
+            // Verify file exists kalau diminta
+            if ($verify_exists) {
+                // Use realpath dari root project
+                $full_path = __DIR__ . '/../../' . $file_path;
+                if (!file_exists($full_path)) {
+                    return null;
+                }
+            }
+            
+            return $file_path;
+            
+        } catch (Exception $e) {
+            error_log("Karya::getFirstImage() error: " . $e->getMessage());
+            return null;
         }
     }
     

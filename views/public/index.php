@@ -49,10 +49,11 @@ include __DIR__ . '/../layouts/header_public.php';
             // Tampilkan 6 gambar dari karya terbaru
             $count = 0;
             foreach ($featured_karya as $karya_item): 
-                if (!empty($karya_item['snapshot_url']) && $count < 6):
+                $first_img = $karyaModel->getFirstImage($karya_item['id_project']);
+                if (!empty($first_img) && $count < 6):
                     $count++;
             ?>
-            <div class="hero-image" style="background-image: url('../../<?php echo htmlspecialchars($karya_item['snapshot_url']); ?>');"></div>
+            <div class="hero-image" style="background-image: url('/portal-tpl/<?php echo htmlspecialchars($first_img); ?>');"></div>
             <?php 
                 endif;
             endforeach; 
@@ -111,10 +112,11 @@ include __DIR__ . '/../layouts/header_public.php';
                 <?php foreach ($featured_karya as $karya_item): 
                     $kategori_arr = $karya_item['kategori'] ? explode(', ', $karya_item['kategori']) : [];
                     $warna_arr = $karya_item['warna'] ? explode(',', $karya_item['warna']) : [];
+                    $first_img = $karyaModel->getFirstImage($karya_item['id_project']);
                 ?>
                 <div class="project-card">
                     <a href="detail_karya.php?id=<?php echo $karya_item['id_project']; ?>" style="text-decoration: none; display: block;">
-                        <div class="project-image" style="<?php echo !empty($karya_item['snapshot_url']) ? 'background-image: url(../../' . htmlspecialchars($karya_item['snapshot_url']) . '); cursor: pointer;' : ''; ?>">
+                        <div class="project-image" style="<?php echo !empty($first_img) ? 'background-image: url(/portal-tpl/' . htmlspecialchars($first_img) . '); cursor: pointer;' : ''; ?>">
                             <?php if ($karya_item['avg_rating']): ?>
                             <div style="position: absolute; top: 10px; right: 10px; background: rgba(255, 255, 255, 0.95); padding: 5px 12px; border-radius: 20px; display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                 <svg viewBox="0 0 20 20" style="width: 16px; height: 16px; fill: #ffd700;">
