@@ -374,14 +374,28 @@ body.page-home .cta .highlight {
 
 /* ===== Responsive ===== */
 @media (max-width: 1024px) {
+
+    /* Switch to single column layout for tablets */
     body.page-home .hero {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        gap: 40px;
+        padding-left: clamp(30px, 6vw, 60px);
+        padding-right: clamp(30px, 6vw, 60px);
         text-align: center;
     }
 
+    body.page-home .hero-content {
+        grid-column: 1;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
     body.page-home .hero-images {
-        justify-content: center;
-        margin-top: 20px;
+        grid-column: 1;
+        justify-self: center;
+        max-width: 500px;
+        width: 100%;
     }
 
     body.page-home .faq {
@@ -391,7 +405,13 @@ body.page-home .cta .highlight {
 
 @media (max-width: 768px) {
     body.page-home .hero {
-        padding-top: 110px;
+        padding: clamp(100px, 15vh, 120px) clamp(24px, 5vw, 40px) clamp(60px, 10vh, 80px);
+        min-height: auto;
+        gap: 30px;
+    }
+
+    body.page-home .hero h1 {
+        font-size: clamp(2rem, 6vw, 2.5rem);
     }
 
     body.page-home .stats-grid,
@@ -402,16 +422,32 @@ body.page-home .cta .highlight {
     body.page-home .faq h2 {
         text-align: center;
     }
+
+    body.page-home .hero-images {
+        max-width: 400px;
+    }
 }
 
 @media (max-width: 576px) {
     body.page-home .hero {
-        padding: 110px 18px 56px;
+        padding: 90px 20px 50px;
+        gap: 24px;
+    }
+
+    body.page-home .hero h1 {
+        font-size: clamp(1.75rem, 7vw, 2rem);
+        margin-bottom: 10px;
+    }
+
+    body.page-home .hero p {
+        font-size: 0.9rem;
+        margin-bottom: 24px;
     }
 
     body.page-home .hero-images {
-        grid-template-columns: repeat(2, minmax(120px, 1fr));
+        grid-template-columns: repeat(2, minmax(100px, 1fr));
         gap: 12px;
+        max-width: 320px;
     }
 
     body.page-home .stats-grid,

@@ -97,7 +97,7 @@ include __DIR__ . '/../layouts/header_public.php';
                         <line x1="16" y1="17" x2="8" y2="17"/>
                     </svg>
                 </div>
-                <p>Akses jurnal, laporan penelitian, dan karya akademis dalam bentuk dokumen ilmiah.</p>
+                <p>Akses dokumentasi teknis, manual penggunaan, dan laporan pengembangan sistem.</p>
             </div>
         </div>
     </section>

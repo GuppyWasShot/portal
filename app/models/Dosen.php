@@ -1,9 +1,9 @@
 <?php
 /**
- * Dosen Class
- * Menangani semua operasi terkait Dosen
+ * Kelas Dosen
+ * Buat ngatur semua data dosen - CRUD lengkap
  * 
- * Usage:
+ * Cara pake:
  * $dosen = new Dosen();
  * $list = $dosen->getAll();
  */
@@ -13,8 +13,8 @@ class Dosen {
     private $db;
     
     /**
-     * Constructor
-     * Menggunakan dependency injection untuk database connection
+     * Constructor - bikin object Dosen
+     * Menggunakan dependency injection untuk koneksi database
      */
     public function __construct($database = null) {
         if ($database === null) {
@@ -25,29 +25,29 @@ class Dosen {
     }
     
     /**
-     * Mendapatkan semua data dosen dengan optional filtering
+     * Ambil semua data dosen (bisa pake filter)
      * 
-     * @param array $filters Optional filters (status, order)
-     * @return array Array of dosen
+     * @param array $filters Filter opsional (status, order/urutan)
+     * @return array List dosen
      */
     public function getAll($filters = []) {
         $where_conditions = [];
         $params = [];
         $types = "";
         
-        // Filter by status
+        // Filter berdasarkan status
         if (isset($filters['status'])) {
             $where_conditions[] = "status = ?";
             $params[] = $filters['status'];
             $types .= "s";
         }
         
-        // Build WHERE clause
+        // Bikin klausa WHERE
         $where_clause = !empty($where_conditions) 
             ? "WHERE " . implode(' AND ', $where_conditions)
             : "";
         
-        // Order clause
+        // Klausa urutan
         $order = isset($filters['order']) ? $filters['order'] : 'status DESC, urutan ASC, nama ASC';
         
         $query = "SELECT * FROM tbl_dosen $where_clause ORDER BY $order";
@@ -74,10 +74,10 @@ class Dosen {
     }
     
     /**
-     * Mendapatkan data dosen berdasarkan ID
+     * Ambil data dosen berdasarkan ID
      * 
-     * @param int $id ID dosen
-     * @return array|null Data dosen atau null jika tidak ditemukan
+     * @param int $id ID dosen yang mau diambil
+     * @return array|null Data dosen atau null kalo ga ketemu
      */
     public function getById($id) {
         $stmt = $this->db->prepare("SELECT * FROM tbl_dosen WHERE id_dosen = ?");
@@ -91,7 +91,7 @@ class Dosen {
     }
     
     /**
-     * Mendapatkan jumlah dosen aktif (untuk dashboard)
+     * Ambil jumlah dosen yang aktif (buat di dashboard)
      * 
      * @return int Jumlah dosen aktif
      */
@@ -102,18 +102,18 @@ class Dosen {
     }
     
     /**
-     * Membuat data dosen baru
+     * Bikin data dosen baru
      * 
-     * @param array $data Data dosen (nama, gelar, jabatan, email, foto_url, deskripsi, urutan, status)
-     * @return int|false ID dosen baru atau false jika gagal
+     * @param array $data Data dosen (nama, gelar, jabatan, email, foto_url, deskripsi, urutan, status) yang mau ditambahin
+     * @return int|false ID dosen baru kalo berhasil, false kalo gagal
      */
     public function create($data) {
-        // Validasi required field
+        // Validasi field yang wajib diisi
         if (empty($data['nama'])) {
             return false;
         }
         
-        // Set default values
+        // Set nilai default
         $nama = $data['nama'];
         $gelar = $data['gelar'] ?? null;
         $jabatan = $data['jabatan'] ?? null;
@@ -148,9 +148,9 @@ class Dosen {
     /**
      * Update data dosen
      * 
-     * @param int $id ID dosen
-     * @param array $data Data yang akan diupdate
-     * @return bool True jika berhasil
+     * @param int $id ID dosen yang mau diupdate
+     * @param array $data Data baru yang mau diupdate
+     * @return bool True kalo berhasil
      */
     public function update($id, $data) {
         // Validasi ID
@@ -158,7 +158,7 @@ class Dosen {
             return false;
         }
         
-        // Validasi required field
+        // Validasi field yang wajib diisi
         if (empty($data['nama'])) {
             return false;
         }
@@ -205,8 +205,8 @@ class Dosen {
     /**
      * Hapus data dosen
      * 
-     * @param int $id ID dosen
-     * @return bool True jika berhasil
+     * @param int $id ID dosen yang mau dihapus
+     * @return bool True kalo berhasil
      */
     public function delete($id) {
         if ($id <= 0) {

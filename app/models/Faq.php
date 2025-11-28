@@ -1,9 +1,9 @@
 <?php
 /**
- * Faq Class
- * Menangani semua operasi terkait FAQ (Frequently Asked Questions)
+ * Kelas FAQ (Pertanyaan yang Sering Ditanya)
+ * Buat ngatur FAQ di halaman publik
  * 
- * Usage:
+ * Cara pake:
  * $faq = new Faq();
  * $list = $faq->getAll();
  */
@@ -13,7 +13,7 @@ class Faq {
     private $db;
     
     /**
-     * Constructor
+     * Constructor - bikin object FAQ
      */
     public function __construct($database = null) {
         if ($database === null) {
@@ -24,10 +24,10 @@ class Faq {
     }
     
     /**
-     * Mendapatkan semua FAQ dengan optional filtering
+     * Ambil semua FAQ yang aktif
      * 
-     * @param array $filters Optional filters (status, kategori, order)
-     * @return array Array of FAQ
+     * @param array $filters Filter opsional (status, order)
+     * @return array List FAQ
      */
     public function getAll($filters = []) {
         $where_conditions = [];
@@ -89,10 +89,10 @@ class Faq {
     }
     
     /**
-     * Mendapatkan FAQ berdasarkan ID
+     * Ambil FAQ berdasarkan ID
      * 
      * @param int $id ID FAQ
-     * @return array|null Data FAQ atau null
+     * @return array|null Data FAQ atau null kalo ga ada
      */
     public function getById($id) {
         $stmt = $this->db->prepare("SELECT * FROM tbl_faq WHERE id_faq = ?");
@@ -106,10 +106,10 @@ class Faq {
     }
     
     /**
-     * Membuat FAQ baru
+     * Bikin FAQ baru
      * 
-     * @param array $data Data FAQ (pertanyaan, jawaban, kategori, urutan, status)
-     * @return int|false ID FAQ baru atau false jika gagal
+     * @param array $data Data FAQ (question, answer, urutan, status)
+     * @return int|false ID FAQ baru kalo berhasil
      */
     public function create($data) {
         // Validasi required fields
@@ -148,9 +148,9 @@ class Faq {
     /**
      * Update FAQ
      * 
-     * @param int $id ID FAQ
-     * @param array $data Data yang akan diupdate
-     * @return bool True jika berhasil
+     * @param int $id ID FAQ yang mau diupdate
+     * @param array $data Data baru
+     * @return bool True kalo berhasil
      */
     public function update($id, $data) {
         if ($id <= 0) {

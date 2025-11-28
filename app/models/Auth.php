@@ -1,9 +1,9 @@
 <?php
 /**
- * Auth Class
- * Menangani semua operasi terkait Authentication dan Authorization
+ * Kelas Auth
+ * Buat ngatur semua hal yang berhubungan dengan login, logout, dan keamanan admin
  * 
- * Usage:
+ * Cara pake:
  * $auth = new Auth();
  * $auth->login($username, $password, $ip);
  */
@@ -12,12 +12,12 @@ require_once __DIR__ . '/Database.php';
 class Auth {
     private $db;
     
-    // Configuration
-    private $max_failed_attempts = 5;
-    private $lockout_minutes = 10;
+    // Konfigurasi keamanan
+    private $max_failed_attempts = 5;  // maksimal salah login 5 kali
+    private $lockout_minutes = 10;      // dikunci 10 menit kalo kebanyakan salah
     
     /**
-     * Constructor
+     * Constructor - dipanggil otomatis pas bikin object
      */
     public function __construct($database = null) {
         if ($database === null) {
@@ -28,15 +28,15 @@ class Auth {
     }
     
     /**
-     * Login admin user
+     * Fungsi buat login admin
      * 
-     * @param string $username Username
-     * @param string $password Password (plain text)
-     * @param string $ip_address IP address
-     * @return array Result array with 'success' (bool), 'message' (string), 'admin' (array if success)
+     * @param string $username Username yang diinput
+     * @param string $password Password asli (belum di-hash)
+     * @param string $ip_address IP address user
+     * @return array Hasil login (success/gagal)
      */
     public function login($username, $password, $ip_address) {
-        // Check if IP is locked
+        // Cek dulu IP-nya udah kena lock belum
         if ($this->isIPLocked($ip_address)) {
             return [
                 'success' => false,
@@ -45,7 +45,7 @@ class Auth {
             ];
         }
         
-        // Validate input
+        // Validasi input dulu, jangan sampe kosong
         if (empty($username) || empty($password)) {
             return [
                 'success' => false,
@@ -55,7 +55,7 @@ class Auth {
         }
         
         try {
-            // Get admin data
+            // Ambil data admin dari database
             $stmt = $this->db->prepare(
                 "SELECT id_admin, username, password FROM tbl_admin WHERE username = ?"
             );
@@ -76,7 +76,7 @@ class Auth {
             $admin = $result->fetch_assoc();
             $stmt->close();
             
-            // Verify password
+            // Cocokkin password yang diinput sama yang di database
             if (!password_verify($password, $admin['password'])) {
                 $this->logLoginAttempt($username, $ip_address, 'Failed');
                 return [
@@ -86,11 +86,11 @@ class Auth {
                 ];
             }
             
-            // Login successful
+            // Kalo password bener, login berhasil!
             $this->logLoginAttempt($username, $ip_address, 'Success');
             $this->resetFailedAttempts($ip_address);
             
-            // Create session
+            // Bikin session buat nyimpen data login
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
             }
@@ -99,7 +99,7 @@ class Auth {
             $_SESSION['admin_id'] = $admin['id_admin'];
             $_SESSION['admin_username'] = $admin['username'];
             
-            // Log activity
+            // Catat aktivitas login ke database
             $this->logActivity($admin['id_admin'], $admin['username'], 'Login ke sistem');
             
             return [
@@ -119,16 +119,16 @@ class Auth {
     }
     
     /**
-     * Logout admin user
+     * Fungsi buat logout admin
      * 
-     * @return bool True if successful
+     * @return bool True kalo berhasil logout
      */
     public function logout() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         
-        // Log activity before destroying session
+        // Catat aktivitas logout sebelum session dihapus
         if (isset($_SESSION['admin_id']) && isset($_SESSION['admin_username'])) {
             try {
                 $this->logActivity(
@@ -141,7 +141,7 @@ class Auth {
             }
         }
         
-        // Destroy session
+        // Hapus semua data session
         $_SESSION = [];
         
         if (ini_get("session.use_cookies")) {
@@ -157,9 +157,9 @@ class Auth {
     }
     
     /**
-     * Check if user is logged in
+     * Cek apakah user udah login apa belum
      * 
-     * @return bool True if logged in
+     * @return bool True kalo udah login
      */
     public function isLoggedIn() {
         if (session_status() === PHP_SESSION_NONE) {
@@ -170,11 +170,11 @@ class Auth {
     }
     
     /**
-     * Require authentication (middleware)
-     * Redirect to login if not authenticated
+     * Wajib login dulu sebelum akses halaman ini
+     * Kalo belum login, langsung diarahin ke halaman login
      * 
-     * @param string $redirect_url URL to redirect if not authenticated
-     * @return bool True if authenticated
+     * @param string $redirect_url URL tujuan kalo belum login
+     * @return bool True kalo udah login
      */
     public function requireAuth($redirect_url = '../../views/admin/login.php?error=belum_login') {
         if (!$this->isLoggedIn()) {
@@ -185,9 +185,9 @@ class Auth {
     }
     
     /**
-     * Get current admin data from session
+     * Ambil data admin yang lagi login sekarang
      * 
-     * @return array|null Admin data or null if not logged in
+     * @return array|null Data admin atau null kalo belum login
      */
     public function getCurrentAdmin() {
         if (!$this->isLoggedIn()) {
@@ -201,15 +201,15 @@ class Auth {
     }
     
     /**
-     * Change admin password
+     * Ganti password admin
      * 
-     * @param int $admin_id Admin ID
-     * @param string $old_password Old password (plain text)
-     * @param string $new_password New password (plain text)
-     * @return array Result with 'success' and 'message'
+     * @param int $admin_id ID admin yang mau ganti password
+     * @param string $old_password Password lama (belum di-hash)
+     * @param string $new_password Password baru (belum di-hash)
+     * @return array Hasil (success/gagal beserta pesannya)
      */
     public function changePassword($admin_id, $old_password, $new_password) {
-        // Validate input
+        // Cek dulu inputannya jangan sampe ada yang kosong
         if (empty($old_password) || empty($new_password)) {
             return ['success' => false, 'message' => 'empty_field'];
         }
@@ -219,7 +219,7 @@ class Auth {
         }
         
         try {
-            // Get current password hash
+            // Ambil password hash yang sekarang dari database
             $stmt = $this->db->prepare(
                 "SELECT password, username FROM tbl_admin WHERE id_admin = ?"
             );
@@ -235,15 +235,15 @@ class Auth {
             $admin = $result->fetch_assoc();
             $stmt->close();
             
-            // Verify old password
+            // Cek password lama bener apa ngga
             if (!password_verify($old_password, $admin['password'])) {
                 return ['success' => false, 'message' => 'wrong_old_password'];
             }
             
-            // Hash new password
+            // Hash password baru biar aman
             $new_hash = $this->hashPassword($new_password);
             
-            // Update password
+            // Update password di database
             $stmt = $this->db->prepare(
                 "UPDATE tbl_admin SET password = ? WHERE id_admin = ?"
             );
@@ -252,7 +252,7 @@ class Auth {
             $stmt->close();
             
             if ($success) {
-                // Log activity
+                // Catat aktivitas ganti password
                 $this->logActivity($admin_id, $admin['username'], 'Mengubah password akun');
                 return ['success' => true, 'message' => 'success'];
             }
@@ -266,31 +266,31 @@ class Auth {
     }
     
     /**
-     * Hash password using password_hash
+     * Enkripsi password pake bcrypt biar aman
      * 
-     * @param string $password Plain text password
-     * @return string Hashed password
+     * @param string $password Password asli
+     * @return string Password yang udah di-hash
      */
     public function hashPassword($password) {
         return password_hash($password, PASSWORD_DEFAULT);
     }
     
     /**
-     * Verify password against hash
+     * Cek password cocok sama hash-nya apa ngga
      * 
-     * @param string $password Plain text password
-     * @param string $hash Hashed password
-     * @return bool True if matches
+     * @param string $password Password asli
+     * @param string $hash Password yang udah di-hash
+     * @return bool True kalo cocok
      */
     public function verifyPassword($password, $hash) {
         return password_verify($password, $hash);
     }
     
     /**
-     * Check if IP is locked due to failed login attempts
+     * Cek IP udah dikunci belum gara-gara kebanyakan salah login
      * 
-     * @param string $ip_address IP address
-     * @return bool True if locked
+     * @param string $ip_address IP address yang mau dicek
+     * @return bool True kalo udah dikunci
      */
     public function isIPLocked($ip_address) {
         try {
@@ -315,12 +315,12 @@ class Auth {
     }
     
     /**
-     * Log login attempt to database
+     * Catat percobaan login ke database (buat tracking)
      * 
-     * @param string $username Username attempted
-     * @param string $ip_address IP address
-     * @param string $status 'Success' or 'Failed'
-     * @return bool True if logged successfully
+     * @param string $username Username yang dicoba
+     * @param string $ip_address IP address-nya
+     * @param string $status 'Success' atau 'Failed'
+     * @return bool True kalo berhasil dicatat
      */
     public function logLoginAttempt($username, $ip_address, $status) {
         try {
@@ -340,10 +340,10 @@ class Auth {
     }
     
     /**
-     * Reset failed login attempts for an IP
+     * Reset counter percobaan login yang gagal buat IP tertentu
      * 
-     * @param string $ip_address IP address
-     * @return bool True if successful
+     * @param string $ip_address IP address yang mau di-reset
+     * @return bool True kalo berhasil
      */
     public function resetFailedAttempts($ip_address) {
         try {
@@ -363,13 +363,13 @@ class Auth {
     }
     
     /**
-     * Log admin activity
+     * Catat aktivitas admin (buat audit trail)
      * 
-     * @param int $admin_id Admin ID
-     * @param string $username Admin username
-     * @param string $action Action description
-     * @param int|null $project_id Related project ID (optional)
-     * @return bool True if logged successfully
+     * @param int $admin_id ID admin yang ngelakuin aktivitas
+     * @param string $username Username admin
+     * @param string $action Deskripsi aktivitas yang dilakukan
+     * @param int|null $project_id ID project terkait (opsional)
+     * @return bool True kalo berhasil dicatat
      */
     public function logActivity($admin_id, $username, $action, $project_id = null) {
         try {
@@ -388,10 +388,10 @@ class Auth {
     }
     
     /**
-     * Get remaining login attempts before IP lockout
+     * Cek berapa kali lagi boleh salah login sebelum dikunci
      * 
-     * @param string $ip_address IP address
-     * @return int Remaining attempts
+     * @param string $ip_address IP address yang dicek
+     * @return int Sisa kesempatan login
      */
     public function getRemainingAttempts($ip_address) {
         try {
